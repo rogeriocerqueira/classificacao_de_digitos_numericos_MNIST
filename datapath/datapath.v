@@ -26,7 +26,7 @@ module datapath (
         .dout(mac_to_tanh) // Saída Q4.12 
     );
 
-    // 2. Instância da Função de Ativação (Criado pelo Colega B)
+    // 2. Instância da Função de Ativação (Criado pelo Rick)
     // Implementa a Tanh via LUT ou Aproximação Linear
     tanh_lut u_tanh (
         .clk(clk),
