@@ -28,7 +28,7 @@ Construir e validar o núcleo de inferência (ELM) em FPGA por meio de simulaç�
 ```bash
 .
 ├── rtl/
-│   ├── elm_accel.v
+│   ├── datapath.v
 │   ├── mac.v
 │   ├── fsm.v
 │   └── memory.v
