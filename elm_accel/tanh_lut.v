@@ -15,5 +15,6 @@ module tanh_lut (
             else
                 dout <= din; // Identidade simplificada para teste
         end
-    end
-endmodule
+    end  // <-- FECHA o always block
+
+endmodule  // <-- FECHA o módulo
