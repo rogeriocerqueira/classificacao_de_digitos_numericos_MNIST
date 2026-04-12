@@ -1,0 +1,80 @@
+# Arquivos de banco de dados e logs do processador
+*.logdb
+*.qmsg
+*.rdb
+*.hdb
+*.qns
+*.flock
+*.cdb
+*.nvd
+*.sci
+*.txt
+*.tdb
+
+# Diretórios de banco de dados e debug
+**/db/
+**/dbg/
+**/rdb/
+
+# Arquivos específicos do projeto
+processador.*
+processador.map.*
+processador.npp.*
+processador.pre_map.*
+processador.quiproj.*
+processador.root_partition.*
+processador.rttlv_*
+processador.sgate.*
+processador.sld_*
+processador.smart_action.txt
+processador.smp_dump.txt
+processador.sta_*
+
+# Arquivos de backup Verilog (bo.bak 1 a 12)
+processador_run_msim_rtl_verilog.do
+processador_run_msim_rtl_verilog.do.bak1 … .bak11
+processador_run_msim_gate_verilog.do
+
+# Quartus/ModelSim simulation files
+processador_run_msim_*.do
+processador_run_msim_*.do.bak*
+# Arquivos comuns de ferramentas Verilog/FPGA
+*.v.bak
+*.sv.bak
+*.qpf
+*.qsf
+*.sdc
+*.sof
+*.pof
+*.rpt
+*.summary
+*.pin
+*.fit.rpt
+*.flow.rpt
+*.map.rpt
+*.sta.rpt
+*.qws
+*.done
+*.status
+
+# Diretórios comuns de saída de ferramentas
+output_files/
+incremental_db/
+greybox_tmp/
+db/
+logic_utilizer/
+hdb/
+rdb/
+dbg/
+
+# Sistemas operacionais
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
