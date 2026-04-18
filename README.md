@@ -7,7 +7,7 @@
 
 > Implementação de um classificador de dígitos numéricos (0–9) utilizando uma rede neural **Extreme Learning Machine (ELM)** em co-processador FPGA, com inferência totalmente executada em hardware descrito em Verilog.
 
-![Diagrama de Arquitetura](gitimage/architecture.png)
+![Diagrama de Arquitetura](gitimage/architeture.jpeg)
 <!-- Substitua pela imagem real exportada do draw.io ou Quartus RTL Viewer -->
 
 ---
