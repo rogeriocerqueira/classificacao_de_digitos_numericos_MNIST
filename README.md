@@ -10,12 +10,12 @@ Este projeto implementa um classificador de dígitos MNIST em hardware reconfigu
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="elm_accel/gitimages/architecture.png" alt="Diagrama de Arquitetura" width="100%"/>
+      <img src="gitimages/architecture.png" alt="Diagrama de Arquitetura" width="100%"/>
       <br/>
       <sub><b>🏗️ Diagrama de Arquitetura Geral</b></sub>
     </td>
     <td align="center" width="50%">
-      <img src="elm_accel/gitimages/core_elm_accel.jpeg" alt="Core elm_accel Módulo" width="100%"/>
+      <img src="gitimages/core_elm_accel.jpeg" alt="Core elm_accel Módulo" width="100%"/>
       <br/>
       <sub><b>⚙️ Core do Módulo elm_accel</b></sub>
     </td>
