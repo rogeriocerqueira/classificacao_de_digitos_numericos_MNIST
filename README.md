@@ -5,19 +5,22 @@
 ![Status](https://img.shields.io/badge/Marco%201-Concluído-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)
 
-> Implementação de um classificador de dígitos numéricos (0–9) utilizando uma rede neural **Extreme Learning Machine (ELM)** em co-processador FPGA, com inferência totalmente executada em hardware descrito em Verilog.
-
-![Diagrama de Arquitetura](gitimages/architeture.jpeg)
-<!-- Substitua pela imagem real exportada do draw.io ou Quartus RTL Viewer -->
-
-![Core elm_accel Módulo](gitimages/core_elm_accel.jpeg)
-<!-- Substitua pela imagem real exportada do draw.io ou Quartus RTL Viewer -->
-
----
-
-## 📖 Visão Geral
-
-Este projeto implementa um **classificador de dígitos MNIST** em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo **Extreme Learning Machine (ELM)**. Toda a inferência  da leitura da imagem até a predição do dígito ocorre diretamente no chip, sem auxílio de CPU.
+📖 Visão Geral
+Este projeto implementa um classificador de dígitos MNIST em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo Extreme Learning Machine (ELM). Toda a inferência — da leitura da imagem até a predição do dígito — ocorre diretamente no chip, sem auxílio de CPU.
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="elm_accel/gitimages/architecture.png" alt="Diagrama de Arquitetura" width="100%"/>
+      <br/>
+      <sub><b>🏗️ Diagrama de Arquitetura Geral</b></sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="elm_accel/gitimages/core_elm_accel.jpeg" alt="Core elm_accel Módulo" width="100%"/>
+      <br/>
+      <sub><b>⚙️ Core do Módulo elm_accel</b></sub>
+    </td>
+  </tr>
+</table>
 
 ### Por que ELM?
 
