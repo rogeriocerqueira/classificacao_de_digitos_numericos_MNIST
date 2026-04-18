@@ -83,7 +83,7 @@ A ELM foi escolhida por três razões principais:
           └───┬──────────┘               │
          done │                          │
           ┌───▼───────┐                  │
-          │ ACTIVATE  │  Sigmoid (LUT)   │
+          │ ACTIVATE  │  Piecewise (LUT)   │
           └───┬───────┘                  │
          done │                          │
           ┌───▼──────────┐               │
@@ -320,7 +320,7 @@ Total estimado: depende do número de neurônios ocultos N
 | Jones Barcellar | Treinamento ELM / Geração de pesos | [@usuario](https://github.com/jonesBdev) |
 | Ricardo Vilas Boas | Testbench e validação | [@usuario](https://github.com/RickVB-FSA) |
 
-> 📌 Projeto desenvolvido como trabalho acadêmico — Sistemas Digiatais — Universidade Estadual de Feira de Santan — 2026.1
+> 📌 Projeto desenvolvido como trabalho acadêmico — Sistemas Digiatais — Universidade Estadual de Feira de Santana — 2026.1
 
 ---
 
@@ -335,5 +335,5 @@ Total estimado: depende do número de neurônios ocultos N
 ---
 
 <p align="center">
-  Desenvolvido com ❤️ em Verilog · Simulado no ModelSim · Sintetizado no Quartus Prime
+  Desenvolvido em Verilog · Simulado no Questa Intel Starter FPGA · Sintetizado no Quartus Prime  Lite Edition 24.1
 </p>
