@@ -10,6 +10,9 @@
 ![Diagrama de Arquitetura](gitimages/architeture.jpeg)
 <!-- Substitua pela imagem real exportada do draw.io ou Quartus RTL Viewer -->
 
+![Core elm_accel Módulo](gitimages/core_elm_accel.jpeg)
+<!-- Substitua pela imagem real exportada do draw.io ou Quartus RTL Viewer -->
+
 ---
 
 ## 📖 Visão Geral
