@@ -319,9 +319,9 @@ Total estimado: depende do número de neurônios ocultos N
 
 | Nome | Papel | GitHub |
 |------|-------|--------|
-| Rogério Cerqueira| Arquitetura RTL / Verilog | [@usuario](https://github.com/rogeriocerqueira) |
-| Jones Barcellar | Treinamento ELM / Geração de pesos | [@usuario](https://github.com/jonesBdev) |
-| Ricardo Vilas Boas | Testbench e validação | [@usuario](https://github.com/RickVB-FSA) |
+| Rogério Cerqueira| Arquitetura RTL / Verilog | [@rogeriocerqueira](https://github.com/rogeriocerqueira) |
+| Jones Barcellar | Treinamento ELM / Geração de pesos | [@jonesBdev](https://github.com/jonesBdev) |
+| Ricardo Vilas Boas | Testbench e validação | [@RickVB-FSA](https://github.com/RickVB-FSA) |
 
 > 📌 Projeto desenvolvido como trabalho acadêmico  Sistemas Digiatais  Universidade Estadual de Feira de Santana  2026.1
 
