@@ -320,7 +320,7 @@ Total estimado: depende do número de neurônios ocultos N
 | — | Treinamento ELM / Geração de pesos | [@usuario](https://github.com/usuario) |
 | — | Testbench e validação | [@usuario](https://github.com/usuario) |
 
-> 📌 Projeto desenvolvido como trabalho acadêmico — [Nome da Disciplina] — [Nome da Instituição] — [Semestre/Ano]
+> 📌 Projeto desenvolvido como trabalho acadêmico — Sistemas Digiatais — Universidade Estadual de Feira de Santan — 2026.1
 
 ---
 
