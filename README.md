@@ -316,7 +316,7 @@ Total estimado: depende do número de neurônios ocultos N
 
 | Nome | Papel | GitHub |
 |------|-------|--------|
-| — | Arquitetura RTL / Verilog | [@usuario](https://github.com/usuario) |
+| — | Arquitetura RTL / Verilog | [@usuario](https://github.com/rogeriocerqueira) |
 | — | Treinamento ELM / Geração de pesos | [@usuario](https://github.com/jonesBdev) |
 | — | Testbench e validação | [@usuario](https://github.com/RickVB-FSA) |
 
