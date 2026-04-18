@@ -1,4 +1,4 @@
-# 🧠 Classificação de Dígitos MNIST em FPGA — Marco 1
+# 🧠 Classificação de Dígitos MNIST em FPGA  Marco 1
 
 ![Quartus Version](https://img.shields.io/badge/Quartus%20Prime-21.1%20Lite-blue?style=for-the-badge&logo=intel)
 ![Language](https://img.shields.io/badge/HDL-Verilog-orange?style=for-the-badge)
@@ -14,7 +14,7 @@
 
 ## 📖 Visão Geral
 
-Este projeto implementa um **classificador de dígitos MNIST** em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo **Extreme Learning Machine (ELM)**. Toda a inferência — da leitura da imagem até a predição do dígito — ocorre diretamente no chip, sem auxílio de CPU.
+Este projeto implementa um **classificador de dígitos MNIST** em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo **Extreme Learning Machine (ELM)**. Toda a inferência  da leitura da imagem até a predição do dígito ocorre diretamente no chip, sem auxílio de CPU.
 
 ### Por que ELM?
 
@@ -47,7 +47,7 @@ A ELM foi escolhida por três razões principais:
                                      └──────────────┘
 ```
 
-### Representação Numérica — Ponto Fixo Q4.12
+### Representação Numérica  Ponto Fixo Q4.12
 
 ```
  Bit 15   Bit 14–12    Bit 11–0
@@ -188,7 +188,7 @@ elm_top (top-level)
 
 ---
 
-### Passo 1 — Clonar o repositório
+### Passo 1  Clonar o repositório
 
 ```bash
 git clone https://github.com/seu-usuario/mnist-fpga-elm.git
@@ -197,7 +197,7 @@ cd mnist-fpga-elm
 
 ---
 
-### Passo 2 — Gerar os pesos da ELM
+### Passo 2  Gerar os pesos da ELM
 
 ```bash
 cd scripts/
@@ -208,7 +208,7 @@ python generate_weights.py
 
 ---
 
-### Passo 3 — Executar a simulação
+### Passo 3  Executar a simulação
 
 ```bash
 bash run_simulation.sh
@@ -221,7 +221,7 @@ O script irá:
 
 ---
 
-### Passo 4 — Compilar no Quartus Prime
+### Passo 4  Compilar no Quartus Prime
 
 1. Abra o Quartus Prime 21.1
 2. `File` → `Open Project` → selecione `elm_accel/elm_accel.qpf`
@@ -230,7 +230,7 @@ O script irá:
 
 ---
 
-### Passo 5 — Interpretar as waveforms
+### Passo 5  Interpretar as waveforms
 
 Após a simulação, observe no ModelSim:
 
@@ -243,7 +243,7 @@ Após a simulação, observe no ModelSim:
 
 ## 📊 Resultados da Simulação
 
-### Waveforms — ModelSim
+### Waveforms  ModelSim
 
 ![Waveform Simulação](docs/sim_waveform.png)
 <!-- Substitua pela captura real do ModelSim -->
@@ -266,17 +266,17 @@ Total estimado: depende do número de neurônios ocultos N
 
 | Dígito | Correto | Total testado | Acurácia |
 |--------|---------|---------------|----------|
-| 0      | —       | —             | —%       |
-| 1      | —       | —             | —%       |
-| 2      | —       | —             | —%       |
-| 3      | —       | —             | —%       |
-| 4      | —       | —             | —%       |
-| 5      | —       | —             | —%       |
-| 6      | —       | —             | —%       |
-| 7      | —       | —             | —%       |
-| 8      | —       | —             | —%       |
-| 9      | —       | —             | —%       |
-| **Total** | —    | —             | **—%**   |
+| 0      |        |              | %       |
+| 1      |        |              | %       |
+| 2      |        |              | %       |
+| 3      |        |              | %       |
+| 4      |        |              | %       |
+| 5      |        |              | %       |
+| 6      |        |              | %       |
+| 7      |        |              | %       |
+| 8      |        |              | %       |
+| 9      |        |              | %       |
+| **Total** |     |              | **%**   |
 
 > 📝 *Preencha com os valores reais após executar o testbench completo.*
 
@@ -284,11 +284,11 @@ Total estimado: depende do número de neurônios ocultos N
 
 | Recurso          | Utilizado | Disponível | Uso (%) |
 |------------------|-----------|------------|---------|
-| LUTs / ALMs      | —         | 10.000     | —%      |
-| Flip-Flops       | —         | 20.000     | —%      |
-| Blocos de RAM    | —         | 414 Kbits  | —%      |
-| Multiplicadores  | —         | 23         | —%      |
-| Fmax             | — MHz     | —          | —       |
+| LUTs / ALMs      |          | 10.000     | %      |
+| Flip-Flops       |          | 20.000     | %      |
+| Blocos de RAM    |          | 414 Kbits  | %      |
+| Multiplicadores  |          | 23         | %      |
+| Fmax             |  MHz     |           |        |
 
 ---
 
@@ -300,12 +300,12 @@ Total estimado: depende do número de neurônios ocultos N
 ![Dígito 3](images/5776.png) ![Dígito 7](images/5783.png) ![Dígito 1](images/5786.png)
 -->
 
-### RTL Viewer — Quartus
+### RTL Viewer  Quartus
 
 ![RTL Viewer](docs/rtl_viewer.png)
 <!-- Exportar via Tools > Netlist Viewers > RTL Viewer -->
 
-### FSM — State Machine Viewer
+### FSM  State Machine Viewer
 
 ![FSM Quartus](docs/fsm_quartus.png)
 <!-- Exportar via Tools > Netlist Viewers > State Machine Viewer -->
@@ -320,7 +320,7 @@ Total estimado: depende do número de neurônios ocultos N
 | Jones Barcellar | Treinamento ELM / Geração de pesos | [@usuario](https://github.com/jonesBdev) |
 | Ricardo Vilas Boas | Testbench e validação | [@usuario](https://github.com/RickVB-FSA) |
 
-> 📌 Projeto desenvolvido como trabalho acadêmico — Sistemas Digiatais — Universidade Estadual de Feira de Santana — 2026.1
+> 📌 Projeto desenvolvido como trabalho acadêmico  Sistemas Digiatais  Universidade Estadual de Feira de Santana  2026.1
 
 ---
 
@@ -328,9 +328,9 @@ Total estimado: depende do número de neurônios ocultos N
 
 - HUANG, G.-B. et al. **Extreme Learning Machine: Theory and Applications**. *Neurocomputing*, v. 70, 2006.
 - LECUN, Y. et al. **The MNIST Database of Handwritten Digits**. Disponível em: [yann.lecun.com/exdb/mnist](http://yann.lecun.com/exdb/mnist/)
-- Intel. **Quartus Prime Lite Edition — User Guide**. Disponível em: [intel.com/quartus](https://www.intel.com/content/www/us/en/products/details/fpga/development-tools/quartus-prime.html)
-- IEEE. **Verilog HDL Standard — IEEE Std 1364-2001**.
-- Material de apoio da disciplina — [inserir referência da disciplina]
+- Intel. **Quartus Prime Lite Edition  User Guide**. Disponível em: [intel.com/quartus](https://www.intel.com/content/www/us/en/products/details/fpga/development-tools/quartus-prime.html)
+- IEEE. **Verilog HDL Standard  IEEE Std 1364-2001**.
+- Material de apoio da disciplina  [inserir referência da disciplina]
 
 ---
 
