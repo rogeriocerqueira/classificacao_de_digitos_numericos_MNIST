@@ -171,8 +171,8 @@ elm_top (top-level)
 | ModelSim-Intel FPGA     | 20.1.1 (integrado)       |
 | Python                  | 3.10+                    |
 | Biblioteca NumPy        | 1.24+                    |
-| Sistema Operacional     | Windows 10 / Ubuntu 22.04|
-| Placa FPGA alvo         | DE10-Lite (EP4CE10F17C8) |
+| Sistema Operacional     | Mint 22.1 (Xia) / Windows 11|
+| Placa FPGA alvo         | DE1-Soc (EPCS128) |
 
 > ⚠️ Versões diferentes do Quartus podem apresentar divergências no relatório de timing. Recomenda-se usar a **21.1 Lite** para reprodução fiel dos resultados.
 
@@ -182,8 +182,8 @@ elm_top (top-level)
 
 ### Pré-requisitos
 
-- Quartus Prime 21.1 Lite instalado e no PATH
-- ModelSim-Intel FPGA Edition instalado
+- Quartus Prime 24.1 Lite instalado e no PATH
+- Questa Intel Start FPGA Edition instalado
 - Python 3.10+ com NumPy (`pip install numpy`)
 
 ---
