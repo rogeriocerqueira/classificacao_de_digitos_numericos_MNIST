@@ -174,7 +174,7 @@ elm_top (top-level)
 | Sistema Operacional     | Mint 22.1 (Xia) / Windows 11|
 | Placa FPGA alvo         | DE1-Soc (EPCS128) |
 
-> ⚠️ Versões diferentes do Quartus podem apresentar divergências no relatório de timing. Recomenda-se usar a **21.1 Lite** para reprodução fiel dos resultados.
+> ⚠️ Versões diferentes do Quartus podem apresentar divergências no relatório de timing. Recomenda-se usar a **24.1 Lite** para reprodução fiel dos resultados.
 
 ---
 
