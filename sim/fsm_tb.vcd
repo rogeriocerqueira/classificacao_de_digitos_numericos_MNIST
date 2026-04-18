@@ -1,0 +1,25 @@
+$date
+	Fri Apr 17 12:53:49 2026
+$end
+$version
+	Questa Intel Starter FPGA Edition Version 2024.3
+$end
+$timescale
+	1ps
+$end
+
+$scope module fsm_tb $end
+
+$scope task apply_reset $end
+$upscope $end
+
+$scope task check $end
+$upscope $end
+
+$scope task wait_for_done $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+$end

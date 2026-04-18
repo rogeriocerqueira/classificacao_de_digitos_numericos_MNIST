@@ -1,0 +1,25 @@
+$date
+	Sun Apr 12 20:58:38 2026
+$end
+$version
+	Questa Intel Starter FPGA Edition Version 2024.3
+$end
+$timescale
+	1ps
+$end
+
+$scope module display_7seg_tb $end
+
+$scope task check $end
+$upscope $end
+
+$scope task pulse_start $end
+$upscope $end
+
+$scope task pulse_done $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+$end

@@ -1,0 +1,49 @@
+$date
+	Fri Apr 17 12:53:55 2026
+$end
+$version
+	Questa Intel Starter FPGA Edition Version 2024.3
+$end
+$timescale
+	1ps
+$end
+
+$scope module elm_accel_tb $end
+
+$scope task wait_done $end
+
+$scope begin th_event $end
+$upscope $end
+
+$scope begin th_timeout $end
+$upscope $end
+$upscope $end
+
+$scope task run_inference $end
+$upscope $end
+
+$scope task check $end
+$upscope $end
+
+$scope task apply_reset $end
+$upscope $end
+
+$scope module dut $end
+
+$scope module u_ram_w $end
+$upscope $end
+
+$scope module u_ram_x $end
+$upscope $end
+
+$scope module u_ram_b $end
+$upscope $end
+
+$scope module u_ram_beta $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+$end
