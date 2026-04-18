@@ -167,8 +167,8 @@ elm_top (top-level)
 
 | Ferramenta              | Versão utilizada         |
 |-------------------------|--------------------------|
-| Intel Quartus Prime     | 21.1 Lite                |
-| ModelSim-Intel FPGA     | 20.1.1 (integrado)       |
+| Intel Quartus Prime     | 24.1 Lite                |
+| Questa Intel Starter FPGA     | 20.1.1 (integrado)       |
 | Python                  | 3.10+                    |
 | Biblioteca NumPy        | 1.24+                    |
 | Sistema Operacional     | Mint 22.1 (Xia) / Windows 11|
@@ -223,7 +223,7 @@ O script irá:
 
 ### Passo 4  Compilar no Quartus Prime
 
-1. Abra o Quartus Prime 21.1
+1. Abra o Quartus Prime Lite Edition 24.1
 2. `File` → `Open Project` → selecione `elm_accel/elm_accel.qpf`
 3. Compile com `Processing` → `Start Compilation` (ou `Ctrl+L`)
 4. Verifique o relatório em `elm_accel/output_files/`
