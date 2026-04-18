@@ -16,6 +16,7 @@
 **/dbg/
 **/rdb/
 
+
 # Arquivos específicos do projeto
 processador.*
 processador.map.*
@@ -78,3 +79,4 @@ desktop.ini
 *~
 .vscode/
 .idea/
+**/mnist_png/

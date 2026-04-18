@@ -5,7 +5,7 @@
 ![Status](https://img.shields.io/badge/Marco%201-Concluído-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)
 
-📖 Visão Geral
+
 Este projeto implementa um classificador de dígitos MNIST em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo Extreme Learning Machine (ELM). Toda a inferência — da leitura da imagem até a predição do dígito — ocorre diretamente no chip, sem auxílio de CPU.
 <table>
   <tr>
@@ -127,22 +127,28 @@ A ELM foi escolhida por três razões principais:
 ```bash
 .
 ├── elm_accel/               # Módulos RTL principais
-│   ├── datapath.v           # Coordena MAC, memória e ativação
+│   ├── elm_accel_core.v     # Coordena MAC, memória e ativação
 │   ├── mac.v                # Unidade Multiplica-Acumula (Q4.12)
 │   ├── fsm.v                # Controlador de estados da inferência
-│   └── memory.v             # Armazena imagem, W_in, bias e β
-│
+│   ├── tanh_lut.v           # Controlador de estados da inferência
+│   ├── argmax.v             # Controlador de estados da inferência
+│   └── ram_image.qip        # Instância da memória RAM-1-Port (Word:7841 16:bits)
+│   ├── ram_w_in.qip         # Instância da memória RAM-1-Port (Word:100352 16:bits)
+│   ├── ram_bias.qip         # Instância da memória RAM-1-Port (Word:128 16:bits)
+│   ├── ram_beta.qip         # Instância da memória RAM-1-Port (Word:7841 16:bits)
+│   ├── ram_h.qip.v          # Instância da memória RAM-1-Port (Word:128 16:bits)
 ├── sim/                     # Arquivos de simulação
-│   └── testbench.v          # Testbench com imagens MNIST
+│   └── elm_accel_tb.v          # Testbench com imagens MNIST
 │
 ├── state_management/        # Controle e monitoramento de estado
 │
-├── memory/                  # Inicialização e dados de memória
 │
 ├── scripts/
-│   └── run_simulation.sh    # Script para compilar e simular
+│   └── run_all              # Executa no terminal do Questa todos os testbench simultaneamente 
 │
-├── images/                  # Imagens MNIST de teste (.png)
+├── gitimages/               # Diretórios específicos para imagens do projeto
+│   ├── mnist_png            # Imagens MNIST de teste (.png)
+│   ├── testbench            # Simulação dos testbench no Questa
 ├── docs/                    # Diagramas, prints e documentação
 └── README.md
 ```
