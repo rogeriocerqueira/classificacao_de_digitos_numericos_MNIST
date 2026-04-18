@@ -253,7 +253,7 @@ Após a simulação, observe no ModelSim:
 ```
 Ciclos de clock por fase (estimativa):
 
-LOAD            <span style="color: green;">██████████████████████████████</span>  784 ciclos
+LOAD            \033[32m██████████████████████████████\033[0m  784 ciclos
 COMPUTE_HIDDEN  ████████████████████████████████████████████  N×784 ciclos
 ACTIVATE        ████  N ciclos
 COMPUTE_OUTPUT  ████████  N×10 ciclos
