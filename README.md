@@ -492,7 +492,7 @@ Diferença de 1 ciclo dentro do pipeline da FSM dentro do esperado.
 | 7      |    10    |          x     |x       |
 | 8      |    10    |          x     | x      |
 | 9      |    10    |          x     | x      |
-| **Total** |  40    |         22    | **20,2%**  |
+| **Total** |  100    |         22    | **20,2%**  |
 
 > *Os únicos valores reconhecidos foram os apresentados na tabela outros valores em x não foram testados.*
 
