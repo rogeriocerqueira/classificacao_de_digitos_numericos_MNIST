@@ -52,7 +52,7 @@ A ELM opera em quatro estágios sequenciais:
 [![Diagrama Q4.12](gitimages/representa_numerica1412.png)](https://rogeriocerqueira.github.io/classificacao_de_digitos_numericos_MNIST/gitimages/q412.html)
 
 
-> 💡 Para converter um valor real `v` para Q4.12: `int(v * 4096)` em Python.
+> Converter um valor real `v` para Q4.12: `int(v * 4096)`
 
 
 
