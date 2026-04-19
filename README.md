@@ -10,16 +10,21 @@ Co-processador ELM
 ## Sumário
 
 1. [Descrição do Projeto](#descrição-do-projeto)
-2. [Arquitetura do Sistema](#arquitetura-do-sistema)
-3. [Estrutura do Repositório](#📁-estrutura-do-repositório)
-4. [Softwares Utilizados](#softwares-utilizados)
-5. [Hardware Utilizado](#hardware-utilizado)
-6. [Instalação e Configuração do Ambiente](#instalação-e-configuração-do-ambiente)
-7. [Execução dos Testes de Simulação](#execução-dos-testes-de-simulação)
-8. [Resultados dos Testes](#resultados-dos-testes)
-9. [Recursos FPGA Utilizados](#recursos-fpga-utilizados)
-10. [Análise dos Resultados](#análise-dos-resultados)
-
+2. [Fluxo de Inferência](#fluxo-de-inferência)
+3. [Representação Númérica](#representação-numérica--ponto-fixo-q412)
+4. [Estrutura do Repositório](#📁-estrutura-do-repositório)
+6. [Máquina de Estado (FSM)](#máquina-de-estados-fsm)
+7. [Objetivo do Marco 1](#objetivo-do-marco-1)
+8. [Hardware Utilizado](#hardware-utilizado)
+9. [Interface com a placa DE1-SoC](#interface-com-a-placa-de1-soc)
+10. [Softwares Utilizados](#softwares-utilizados)
+11. [Instalação e Configuração do Ambiente](#instalação-e-configuração-do-ambiente)
+12. [Execução dos Testes de Simulação](#execução-dos-testes-de-simulação)
+13. [Resultados dos Testes](#resultados-dos-testes)
+14. [Recursos FPGA Utilizados](#recursos-fpga-utilizados)
+15. [Análise dos Resultados](#análise-dos-resultados)
+16. [Equipe](#equipe)
+17. [Referências](#referências)
 ---
 ### Descrição do Projeto
 Este projeto implementa um classificador de dígitos MNIST em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo Extreme Learning Machine (ELM). Toda a inferência — da leitura da imagem até a predição do dígito — ocorre diretamente no chip, sem auxílio de CPU.
@@ -110,7 +115,7 @@ Todos os valores são representados em **ponto fixo Q4.12** (1 bit de sinal + 3 
 └── README.md
 ```
 
-### Dependências entre Módulos
+#### Dependências entre Módulos
 
 ```
 elm_top (top-level)
@@ -120,7 +125,7 @@ elm_top (top-level)
 │   └── memory.v   ──▶ fornece pesos e pixels ao MAC
 ```
 
-### Descrição dos Módulos
+#### Descrição dos Módulos
 
 | Arquivo              | Módulo       | Responsabilidade                                      |
 |----------------------|--------------|-------------------------------------------------------|
@@ -134,7 +139,7 @@ elm_top (top-level)
 
 ---
 
-### RTL Viewer  Quartus
+### Arquitura do Co-processador (RTL Viewer Quartus)
 
 ![RTL Viewer](gitimages/Technology_map_viewer.jpg)
 <!-- Exportar via Tools > Netlist Viewers > RTL Viewer -->
@@ -155,9 +160,12 @@ elm_top (top-level)
 
 
 
-## Máquina de Estados (FSM)
+### Máquina de Estados (FSM)
+![FSM — Grafo de Estados](gitimages/state_machine_viewer.jpg)
 
-### Tabela de Estados
+> **Diagrama gerado automaticamente pelo Quartus State Machine Viewer.** 
+
+#### Tabela de Estados
 
 | Estado           | Descrição                                        | Transição          |
 |------------------|--------------------------------------------------|--------------------|
@@ -172,44 +180,6 @@ elm_top (top-level)
 ---
 
 ![FSM — Grafo de Estados](gitimages/fsm-flow.gif)
-
-### Diagrama de Estados
-
-```
-          ┌───────┐
-    rst ──▶ IDLE  │◀─────────────────────┐
-          └───┬───┘                      │
-         start│                          │
-          ┌───▼───┐                      │
-          │ LOAD  │  Carrega imagem      │
-          └───┬───┘  na memória          │
-         done │                          │
-          ┌───▼──────────┐               │
-          │ COMPUTE_     │  MAC para     │
-          │ HIDDEN       │  camada oculta│
-          └───┬──────────┘               │
-         done │                          │
-          ┌───▼───────┐                  │
-          │ ACTIVATE  │  Piecewise (LUT) │
-          └───┬───────┘                  │
-         done │                          │
-          ┌───▼──────────┐               │
-          │ COMPUTE_     │  Multiplica   │
-          │ OUTPUT       │  por β        │
-          └───┬──────────┘               │
-         done │                          │
-          ┌───▼───┐                      │
-          │ARGMAX │  Seleciona classe    │
-          └───┬───┘  vencedora           │
-         done │                          │
-          ┌───▼───┐                      │
-          │ DONE  │  Resultado pronto ───┘
-          └───────┘
-```
-
-> **Diagrama gerado automaticamente pelo Quartus State Machine Viewer.** 
-
-![FSM — Grafo de Estados](gitimages/state_machine_viewer.jpg)
 
 
 ### Objetivo do Marco 1
@@ -269,19 +239,19 @@ elm_top (top-level)
 
 
 
-### 1. Clonar o repositório
+#### 1. Clonar o repositório
 
 ```bash
 git clone <https://github.com/rogeriocerqueira/classificacao_de_digitos_numericos_MNIST>
 cd classificacao_de_digitos_numericos_MNIST
 ```
 
-### 2. Gerar os arquivos `.hex` e `.mif` das imagens
+#### 2. Gerar os arquivos `.hex` e `.mif` das imagens
 
 Coloque as imagens MNIST (28×28 PNG) em uma pasta e execute:
 
 ---
-### Instalação das dependências Python
+#### Instalação das dependências Python
 
 ```bash
 sudo apt install python3-pil python3-numpy
@@ -308,7 +278,7 @@ cp sim/7.hex sim/png.hex
 cp elm_accel/7.mif elm_accel/png.mif
 ```
 
-### 3. Compilar no Quartus
+#### 3. Compilar no Quartus
 
 ```
 1. Abrir elm_accel/processador.qpf no Quartus
@@ -316,7 +286,7 @@ cp elm_accel/7.mif elm_accel/png.mif
 3. Aguardar compilação (~5-10 minutos)
 ```
 
-### 4. Programar a DE1-SoC
+#### 4. Programar a DE1-SoC
 
 ```
 1. Conectar USB-Blaster
@@ -325,7 +295,7 @@ cp elm_accel/7.mif elm_accel/png.mif
 4. Start
 ```
 
-### 5. Operar na placa
+#### 5. Operar na placa
 
 ```
 KEY[0] → Reset (mantém pressionado e solta para iniciar)
@@ -337,9 +307,9 @@ HEX0 → exibe o dígito predito (0–9)
 
 ---
 
-## Execução dos Testes de Simulação
+### Execução dos Testes de Simulação
 
-### Pré-requisito
+#### Pré-requisito
 
 Garantir que os arquivos `.hex` estejam na pasta `sim/`:
 
@@ -349,7 +319,7 @@ cp 0.hex png.hex    # ou qualquer dígito desejado
 wc -l png.hex       # deve mostrar 784
 ```
 
-### Rodar todos os testbenches
+#### Rodar todos os testbenches
 
 No transcript do Questa:
 
@@ -369,7 +339,7 @@ O script executa automaticamente na ordem:
 6. elm_accel_tb_real — inferência com pesos reais
 ```
 
-### Trocar imagem e re-testar
+#### Trocar imagem e re-testar
 
 ```bash
 cp 3.hex png.hex    # testar dígito 3
@@ -380,7 +350,7 @@ Questa> do run_all.do
 ```
 
 ---
-## Etapa de Testbench
+#### Etapa de Testbench
 
 ### Script `run_all.do` — Compilação completa
 
@@ -390,7 +360,7 @@ Compilação de todos os módulos RTL e testbenches sem erros. A ordem de compil
 
 
 
-### Teste do MAC Q4.12
+#### Teste do MAC Q4.12
 
 ![Testes MAC e tanh_lut](gitimages/testbench/testeMac_tahn_lut.jpg)
 
@@ -410,7 +380,7 @@ Todos os 7 casos do `tanh_lut` passaram, confirmando o comportamento combinacion
 
 ---
 
-### Teste do argmax_block
+#### Teste do argmax_block
 
 ![argmax Teste 1 — índice 3](gitimages/testbench/test_argmax_bloc.jpg)
 ![argmax Teste 2 — clr entre inferências](gitimages/testbench//test_argmax_block02.jpg)
@@ -428,7 +398,7 @@ O **Teste 2** é o mais crítico. Ele valida a correção do Bug #4. Sem o sinal
 
 ---
 
-### Testes de integração — elm_accel_tb
+#### Testes de integração — elm_accel_tb
 
 ![elm_accel_tb Testes 1–4](gitimages/testbench/elm_accel.jpg)
 ![elm_accel_tb Testes 5–12](gitimages/testbench/elm_accel5.jpg)
@@ -454,7 +424,7 @@ O **Teste 12** valida simultaneamente os quatro bugs corrigidos: três inferênc
 
 ---
 
-### Inferência com pesos reais — elm_accel_tb_real
+#### Inferência com pesos reais — elm_accel_tb_real
 
 ![Inferência real com pesos e imagem](gitimages/testbench/elm_accel_tb_real.jpg)
 
@@ -482,7 +452,7 @@ Diferença de 1 ciclo dentro do pipeline da FSM dentro do esperado.
 
 ---
 
-## Recursos FPGA Utilizados
+### Recursos FPGA Utilizados
 
 Dados do **Fitter RAM Summary** após síntese no Quartus:
 
@@ -509,9 +479,9 @@ A memória `ram_w_in` domina com **97,7% dos bits de memória** consequência di
 
 ---
 
-## Análise dos Resultados
+### Análise dos Resultados
 
-### Pontos fortes
+#### Pontos fortes
 
 - **Arquitetura modular:** separação clara entre controle (FSM) e dados (MAC, tanh, argmax), facilitando depuração e reutilização
 - **Ponto fixo Q4.12:** resolução adequada para os pesos ELM sem necessidade de ponto flutuante — 0 DSPs extras
@@ -519,7 +489,7 @@ A memória `ram_w_in` domina com **97,7% dos bits de memória** consequência di
 - **Testbenches em camadas:** validação progressiva de unitário a sistema completo, com 35+ casos de teste
 - **Correção de 4 bugs críticos** identificados por análise estática do código antes da simulação
 
-### Limitações conhecidas
+#### Limitações conhecidas
 
 - **Hard tanh ≠ tanh real:** a aproximação `clip(x,−1,1)` introduz erro máximo de ~31% nas bordas `x ≈ ±1`. O impacto na acurácia depende da distribuição das ativações do modelo
 - **Overflow silencioso no MAC:** `acc[31:28]` é descartado sem tratamento, acumulações muito grandes podem resultar em saturação não detectada
@@ -550,10 +520,6 @@ ARGMAX          █  10 ciclos
 
 Total estimado: depende do número de neurônios ocultos N
 ```
-
-##  Resultados da Simulação
-
-
 ### Acurácia por Dígito
 
 | Dígito | Total testado | Correto | Acurácia |
@@ -568,18 +534,12 @@ Total estimado: depende do número de neurônios ocultos N
 | 7      |    10    |          0     |0 %     |
 | 8      |    10    |          0     | x      |
 | 9      |    10    |          0     | x      |
-| **Total** |       |         22       | **20,2%**  |
+| **Total** |  40    |         22       | **20,2%**  |
 
-> 📝 *Os únicos valores reconhecidos foram os apresentados na tabela outros valores em x não foram testados.*
+> *Os únicos valores reconhecidos foram os apresentados na tabela outros valores em x não foram testados.*
 
 
-### Exemplos de Imagens MNIST Testadas
-
-<!-- Adicione prints das imagens testadas:
-![Dígito 3](images/5776.png) ![Dígito 7](images/5783.png) ![Dígito 1](images/5786.png)
--->
-
-## Equipe
+### Equipe
 
 | Nome | Papel | GitHub |
 |------|-------|--------|
@@ -591,7 +551,7 @@ Total estimado: depende do número de neurônios ocultos N
 
 ---
 
-## Referências
+### Referências
 
 - HUANG, G.-B. et al. **Extreme Learning Machine: Theory and Applications**. *Neurocomputing*, v. 70, 2006.
 - LECUN, Y. et al. **The MNIST Database of Handwritten Digits**. Disponível em: [yann.lecun.com/exdb/mnist](http://yann.lecun.com/exdb/mnist/)
