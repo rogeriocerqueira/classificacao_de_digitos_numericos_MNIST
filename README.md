@@ -49,7 +49,7 @@ A ELM opera em quatro estágios sequenciais:
 ### Representação Numérica  Ponto Fixo Q4.12
 
 
-[![Diagrama Q4.12](https://img.shields.io/badge/Q4.12-Diagrama%20Interativo-1D9E75?style=for-the-badge&logo=html5)](gitimages/q412.html)
+[![Diagrama Q4.12](https://htmlpreview.github.io/?https://github.com/SEU-USUARIO/SEU-REPO/blob/main/elm_accel/gitimages/q412.html)](gitimages/q412.html)
 
 
 > 💡 Para converter um valor real `v` para Q4.12: `int(v * 4096)` em Python.
