@@ -1,7 +1,7 @@
 # Classificação de Dígitos MNIST em FPGA: Marco 1 
 Co-processador ELM 
 
-![Quartus Version](https://img.shields.io/badge/Quartus%20Prime-21.1%20Lite-blue?style=for-the-badge&logo=intel)
+![Quartus Version](https://img.shields.io/badge/Quartus%20Prime-24.1%20Lite-blue?style=for-the-badge&logo=intel)
 ![Language](https://img.shields.io/badge/HDL-Verilog-orange?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Marco%201-Concluído-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)
@@ -49,7 +49,7 @@ A ELM opera em quatro estágios sequenciais:
 ### Representação Numérica  Ponto Fixo Q4.12
 
 
-[![Diagrama Q4.12](gitimages/representa_numerica1412.png)
+[![Diagrama Q4.12](/classificacao_de_digitos_numericos_MNIST/gitimages/representa_numerica1412.png)](https://rogeriocerqueira.github.io/classificacao_de_digitos_numericos_MNIST/gitimages/q412.html)
 
 
 > 💡 Para converter um valor real `v` para Q4.12: `int(v * 4096)` em Python.
