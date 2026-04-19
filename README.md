@@ -505,7 +505,7 @@ Diferença de 1 ciclo dentro do pipeline da FSM dentro do esperado.
 | Jones Barcellar | Treinamento ELM / Geração de pesos | [@jonesBdev](https://github.com/jonesBdev) |
 | Ricardo Vilas Boas | Testbench e validação | [@RickVB-FSA](https://github.com/RickVB-FSA) |
 
-> Projeto desenvolvido como trabalho acadêmico  Sistemas Digiatais  Universidade Estadual de Feira de Santana  2026.1
+> Projeto desenvolvido como trabalho acadêmico da disciplina TEC 499 - Sistemas Digitais | Universidade Estadual de Feira de Santana |  2026.1
 
 ---
 
