@@ -1,7 +1,0 @@
-pwd
-# /home/rogerio/Documents/Disciplinas/2026.1/SD/github/classificacao_de_digitos_numericos_MNIST/elm_accel
-
-vlog -vlog01compat -work work ../sim/elm_accel_tb.v
-
-vsim -t 1ps -L rtl_work -L work -voptargs="+acc" work.elm_accel_tb_real
-run -all

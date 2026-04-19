@@ -80,3 +80,7 @@ desktop.ini
 .vscode/
 .idea/
 **/mnist_png/
+**/questa/
+**/work/
+**/rtl_work/
+**/altera_mf/

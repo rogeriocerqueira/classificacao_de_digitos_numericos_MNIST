@@ -7,20 +7,7 @@
 
 
 Este projeto implementa um classificador de dígitos MNIST em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo Extreme Learning Machine (ELM). Toda a inferência — da leitura da imagem até a predição do dígito — ocorre diretamente no chip, sem auxílio de CPU.
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img src="gitimages/architeture.jpeg" alt="Diagrama de Arquitetura" width="100%"/>
-      <br/>
-      <sub><b>🏗️ Diagrama de Arquitetura Geral</b></sub>
-    </td>
-    <td align="center" width="50%">
-      <img src="gitimages/core_elm_accel.jpeg" alt="Core elm_accel Módulo" width="100%"/>
-      <br/>
-      <sub><b>⚙️ Core do Módulo elm_accel</b></sub>
-    </td>
-  </tr>
-</table>
+
 
 ### Por que ELM?
 
@@ -36,14 +23,14 @@ A ELM foi escolhida por três razões principais:
 
 ---
 
-## 🏗️ Arquitetura do Sistema
+## Arquitetura do Sistema
 
 ### Fluxo de Inferência
 
 ```
 ┌─────────────┐     ┌──────────┐     ┌────────────┐     ┌──────────┐     ┌──────────────┐
 │  Imagem     │     │  Memória │     │  MAC Unit  │     │ Ativação │     │   Argmax     │
-│  28×28 px   │────▶│  W_in/β  │────▶│  (Q4.12)   │────▶│ Sigmoid  │────▶│  Saída 0–9  │
+│  28×28 px   │────▶│  W_in/β  │────▶│  (Q4.12)   │────▶│ Sigmoid  │────▶│  Saída 0–9   │
 │  (784 bytes)│     │  bias    │     │            │     │  (LUT)   │     │              │
 └─────────────┘     └──────────┘     └────────────┘     └──────────┘     └──────────────┘
                                             ▲
@@ -58,8 +45,8 @@ A ELM foi escolhida por três razões principais:
 ```
  Bit 15   Bit 14–12    Bit 11–0
 ┌───────┬────────────┬─────────────────────────────┐
-│ Sinal │   Inteiro  │        Fração (1/4096)       │
-│  (1b) │    (4b)    │           (12b)              │
+│ Sinal │   Inteiro  │        Fração (1/4096)      │
+│  (1b) │    (4b)    │           (12b)             │
 └───────┴────────────┴─────────────────────────────┘
 
   Faixa: -8.0 até +7.9997...
@@ -70,7 +57,9 @@ A ELM foi escolhida por três razões principais:
 
 ---
 
-## 🔄 Máquina de Estados (FSM)
+## Máquina de Estados (FSM)
+
+![FSM — Grafo de Estados](gitimages/fsm-flow.gif)
 
 ### Diagrama de Estados
 
@@ -89,7 +78,7 @@ A ELM foi escolhida por três razões principais:
           └───┬──────────┘               │
          done │                          │
           ┌───▼───────┐                  │
-          │ ACTIVATE  │  Piecewise (LUT)   │
+          │ ACTIVATE  │  Piecewise (LUT) │
           └───┬───────┘                  │
          done │                          │
           ┌───▼──────────┐               │
@@ -106,7 +95,10 @@ A ELM foi escolhida por três razões principais:
           └───────┘
 ```
 
-> 📸 *Veja também o diagrama gerado automaticamente pelo Quartus State Machine Viewer em `docs/fsm_quartus.png`*
+> **Diagrama gerado automaticamente pelo Quartus State Machine Viewer.** 
+
+![FSM — Grafo de Estados](gitimages/state_machine_viewer.jpg)
+
 
 ### Tabela de Estados
 
@@ -138,7 +130,7 @@ A ELM foi escolhida por três razões principais:
 │   ├── ram_beta.qip         # Instância da memória RAM-1-Port (Word:7841 16:bits)
 │   ├── ram_h.qip.v          # Instância da memória RAM-1-Port (Word:128 16:bits)
 ├── sim/                     # Arquivos de simulação
-│   └── elm_accel_tb.v          # Testbench com imagens MNIST
+│   └── elm_accel_tb.v       # Testbench com imagens MNIST
 │
 ├── state_management/        # Controle e monitoramento de estado
 │
@@ -167,11 +159,13 @@ elm_top (top-level)
 
 | Arquivo              | Módulo       | Responsabilidade                                      |
 |----------------------|--------------|-------------------------------------------------------|
+| `elm_accel/elm_accel.v`| `elm_accel` | Top-level orquestra o fluxo de dados entre MAC e memória        |
 | `elm_accel/mac.v`    | `mac`        | Multiplica dois operandos Q4.12 e acumula resultado   |
-| `elm_accel/datapath.v` | `datapath` | Orquestra o fluxo de dados entre MAC e memória        |
+| `elm_accel/tanh_lut.v`| `tanh_lut`   | Aplica a função piecewise   |
+| `elm_accel/display_7seg.v`| `display_7seg`    | Exibe o dígito resultado da inferência  |
 | `elm_accel/fsm.v`    | `elm_fsm`    | Gera sinais de controle conforme estado atual         |
-| `elm_accel/memory.v` | `memory`     | ROM/RAM para imagem, pesos W_in, bias e β             |
-| `sim/testbench.v`    | `tb`         | Aplica estímulos e verifica saída esperada            |
+| `elm_accel/memories.v` | `memories`     | ROM/RAM para imagem, pesos W_in, bias e β            |
+| `sim/elm_accel_tb_real.v`    | `elm_accel_tb_real`         | Aplica os testes de todos os módulos            |
 
 ---
 
@@ -180,7 +174,7 @@ elm_top (top-level)
 | Ferramenta              | Versão utilizada         |
 |-------------------------|--------------------------|
 | Intel Quartus Prime     | 24.1 Lite                |
-| Questa Intel Starter FPGA     | 20.1.1 (integrado)       |
+| Questa Intel Starter FPGA     | 20.1.1 (integrado) |
 | Python                  | 3.10+                    |
 | Biblioteca NumPy        | 1.24+                    |
 | Sistema Operacional     | Mint 22.1 (Xia) / Windows 11|
@@ -190,7 +184,7 @@ elm_top (top-level)
 
 ---
 
-## 🚀 Manual de Uso
+## Manual de Uso
 
 ### Pré-requisitos
 
@@ -314,17 +308,25 @@ Total estimado: depende do número de neurônios ocultos N
 
 ### RTL Viewer  Quartus
 
-![RTL Viewer](docs/rtl_viewer.png)
+![RTL Viewer](gitimages/architeture.jpeg)
 <!-- Exportar via Tools > Netlist Viewers > RTL Viewer -->
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="gitimages/architeture.jpeg" alt="Diagrama de Arquitetura" width="100%"/>
+      <br/>
+      <sub><b>🏗️ Diagrama de Arquitetura Geral</b></sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="gitimages/core_elm_accel.jpeg" alt="Core elm_accel Módulo" width="100%"/>
+      <br/>
+      <sub><b>⚙️ Core do Módulo elm_accel</b></sub>
+    </td>
+  </tr>
+</table>
 
-### FSM  State Machine Viewer
 
-![FSM Quartus](docs/fsm_quartus.png)
-<!-- Exportar via Tools > Netlist Viewers > State Machine Viewer -->
-
----
-
-## 👥 Equipe
+## Equipe
 
 | Nome | Papel | GitHub |
 |------|-------|--------|
@@ -332,11 +334,11 @@ Total estimado: depende do número de neurônios ocultos N
 | Jones Barcellar | Treinamento ELM / Geração de pesos | [@jonesBdev](https://github.com/jonesBdev) |
 | Ricardo Vilas Boas | Testbench e validação | [@RickVB-FSA](https://github.com/RickVB-FSA) |
 
-> 📌 Projeto desenvolvido como trabalho acadêmico  Sistemas Digiatais  Universidade Estadual de Feira de Santana  2026.1
+> Projeto desenvolvido como trabalho acadêmico  Sistemas Digiatais  Universidade Estadual de Feira de Santana  2026.1
 
 ---
 
-## 📚 Referências
+## Referências
 
 - HUANG, G.-B. et al. **Extreme Learning Machine: Theory and Applications**. *Neurocomputing*, v. 70, 2006.
 - LECUN, Y. et al. **The MNIST Database of Handwritten Digits**. Disponível em: [yann.lecun.com/exdb/mnist](http://yann.lecun.com/exdb/mnist/)

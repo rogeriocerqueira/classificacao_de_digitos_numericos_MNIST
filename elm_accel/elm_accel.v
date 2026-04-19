@@ -1,116 +1,104 @@
+// ============================================================
+//  elm_accel — Top-level DE1-SoC
+//  Co-processador ELM para classificação MNIST
+//
+//  Interface com a placa (Cyclone V — 5CSEMA5F31C6):
+//    CLOCK_50  : clock 50 MHz
+//    KEY[0]    : reset  (ativo baixo)
+//    KEY[1]    : start  (ativo baixo, borda detectada)
+//    HEX0      : dígito predito (0-9)
+//    HEX1..5   : apagados
+//    LEDR[0]   : done  (acende ao concluir, apaga ao iniciar novo)
+//    LEDR[9]   : busy  (acende durante inferência)
+//
+//  Correção aplicada:
+//    [Design #1] LEDR[0] era conectado diretamente ao sinal
+//                done, que pulsa apenas 1 ciclo a 50 MHz
+//                (20 ns — invisível ao olho humano).
+//                Agora LEDR[0] é alimentado por done_latch,
+//                que mantém o nível alto até o próximo start.
+//
+//  Hierarquia:
+//    elm_accel (top)
+//    ├── elm_accel_core  (núcleo: FSM + MAC + RAMs + tanh + argmax)
+//    └── display_7seg    (saída visual HEX0..5)
+// ============================================================
+
 module elm_accel (
-    input wire clk,
-    input wire reset,
-    input wire start,
-    output wire done,
-    output wire [3:0] predicted_digit
+    input  wire        CLOCK_50,
+    input  wire [1:0]  KEY,
+
+    output wire [6:0]  HEX0,
+    output wire [9:0]  LEDR
 );
 
-    // --- 1. FIOS DE INTERCONEXÃO ---
-    wire clr_acc_w, en_mac_w, en_tanh_w, en_argmax_w;
-    wire [16:0] addr_w_w;
-    wire [9:0]  addr_x_w;
-    wire [6:0]  addr_b_w;
-    wire [10:0] addr_beta_w;
+    // =========================================================
+    // Sinais internos
+    // =========================================================
+    wire clk;
+    wire reset;
+    wire start;
+    wire done;
+    wire [3:0] predicted_digit;
 
-    // Wires de saída das RAMs com larguras corretas:
-    //   ram_w_in  -> q [15:0]  (16 bits, Q4.12)
-    //   ram_image -> q [7:0]   (8 bits, pixel bruto 0-255)
-    //   ram_bias  -> q [15:0]  (16 bits, Q4.12)
-    //   ram_beta  -> q [7:0]   (8 bits)
-    wire [15:0] weight_from_ram;
-    wire [7:0]  pixel_from_ram;   // CORRIGIDO: era [15:0], ram_image tem q de 8 bits
-    wire [15:0] bias_from_ram;
-    wire [7:0]  beta_from_ram;    // CORRIGIDO: era [15:0], ram_beta tem q de 8 bits
+    assign clk   = CLOCK_50;
+    assign reset = ~KEY[0];   // KEY ativo baixo → reset ativo alto
 
-    // Pixel estendido para 16 bits (zero-extend) antes de entrar no MAC (Q4.12)
-    wire [15:0] pixel_extended;   // ADICIONADO: adaptação de largura para o MAC
-    assign pixel_extended = {8'b0, pixel_from_ram};
+    // Detector de borda de descida em KEY[1] → pulso de start (1 ciclo)
+    reg key1_prev;
+    always @(posedge clk or posedge reset) begin
+        if (reset) key1_prev <= 1'b1;
+        else       key1_prev <= KEY[1];
+    end
+    assign start = key1_prev & ~KEY[1];
 
-    wire [15:0] mac_to_tanh;
-    wire [15:0] tanh_to_argmax;
-
-    // --- 2. MÁQUINA DE ESTADOS ---
-    fsm u_fsm (
-        .clk      (clk),
-        .reset    (reset),
-        .start    (start),
-        .clr_acc  (clr_acc_w),
-        .en_mac   (en_mac_w),
-        .en_tanh  (en_tanh_w),
-        .en_argmax(en_argmax_w),
-        .addr_w   (addr_w_w),
-        .addr_x   (addr_x_w),
-        .addr_b   (addr_b_w),
-        .done     (done)
+    // =========================================================
+    // Núcleo do co-processador
+    // =========================================================
+    elm_accel_core u_core (
+        .clk             (clk),
+        .reset           (reset),
+        .start           (start),
+        .done            (done),
+        .predicted_digit (predicted_digit)
     );
 
-    // --- 3. MEMÓRIAS (RAM: 1-PORT) ---
-
-    // Pesos W_in — 100352 palavras de 16 bits (Q4.12)
-    ram_w_in u_ram_w (
-        .address (addr_w_w),
-        .clock   (clk),
-        .data    (16'b0),
-        .rden    (1'b1),           // CORRIGIDO: porta rden ausente no original
-        .wren    (1'b0),
-        .q       (weight_from_ram)
+    // =========================================================
+    // Display de 7 segmentos
+    // =========================================================
+    display_7seg u_display (
+        .clk             (clk),
+        .reset           (reset),
+        .start           (start),
+        .done            (done),
+        .predicted_digit (predicted_digit),
+        .HEX0            (HEX0)
     );
 
-    // Imagem x — 784 pixels de 8 bits
-    ram_image u_ram_x (
-        .address (addr_x_w),
-        .clock   (clk),
-        .data    (8'b0),           // CORRIGIDO: era 16'b0, data é 8 bits
-        .rden    (1'b1),           // CORRIGIDO: porta rden ausente no original
-        .wren    (1'b0),
-        .q       (pixel_from_ram)
-    );
+    // =========================================================
+    // LEDs de status
+    // =========================================================
 
-    // Bias b — 128 palavras de 16 bits (Q4.12)
-    ram_bias u_ram_b (
-        .address (addr_b_w),
-        .clock   (clk),
-        .data    (16'b0),
-        .rden    (1'b1),           // CORRIGIDO: porta rden ausente no original
-        .wren    (1'b0),
-        .q       (bias_from_ram)
-    );
+    // busy: acende ao iniciar, apaga ao concluir
+    reg busy;
+    always @(posedge clk or posedge reset) begin
+        if (reset)      busy <= 1'b0;
+        else if (start) busy <= 1'b1;
+        else if (done)  busy <= 1'b0;
+    end
 
-    // Beta — 1280 palavras de 8 bits (não usada pela FSM atual)
-    ram_beta u_ram_beta (
-        .address (addr_beta_w),
-        .clock   (clk),
-        .data    (8'b0),           // CORRIGIDO: era 16'b0, data é 8 bits
-        .rden    (1'b1),           // CORRIGIDO: porta rden ausente no original
-        .wren    (1'b0),
-        .q       (beta_from_ram)
-    );
+    // [FIX Design #1] done_latch: mantém LEDR[0] aceso após inferência.
+    // done é um pulso de 1 ciclo (20 ns a 50 MHz — invisível ao olho).
+    // done_latch é setado por done e limpo pelo próximo start ou reset.
+    reg done_latch;
+    always @(posedge clk or posedge reset) begin
+        if (reset)      done_latch <= 1'b0;
+        else if (start) done_latch <= 1'b0;  // apaga ao iniciar nova inferência
+        else if (done)  done_latch <= 1'b1;  // acende ao concluir
+    end
 
-    // --- 4. DATAPATH ---
-
-    mac u_mac (
-        .clk   (clk),
-        .clr   (clr_acc_w),
-        .en    (en_mac_w),
-        .din_x (pixel_extended),   // CORRIGIDO: era pixel_from_ram (8 bits), MAC espera 16 bits
-        .din_w (weight_from_ram),
-        .dout  (mac_to_tanh)
-    );
-
-    tanh_lut u_tanh (
-        .clk  (clk),
-        .en   (en_tanh_w),
-        .din  (mac_to_tanh),
-        .dout (tanh_to_argmax)
-    );
-
-    argmax_block u_argmax (
-        .clk   (clk),
-        .reset (reset),
-        .en    (en_argmax_w),      // CORRIGIDO: en_argmax_w agora está conectado à FSM
-        .din   (tanh_to_argmax),
-        .digit (predicted_digit)
-    );
+    assign LEDR[0]   = done_latch;  // [FIX] era: done (pulsava 1 ciclo)
+    assign LEDR[9]   = busy;
+    assign LEDR[8:1] = 8'b0;
 
 endmodule
