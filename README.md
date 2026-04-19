@@ -13,6 +13,7 @@ Co-processador ELM
 2. [Fluxo de Inferência](#fluxo-de-inferência)
 3. [Representação Númérica](#representação-numérica--ponto-fixo-q412)
 4. [Estrutura do Repositório](#📁-estrutura-do-repositório)
+5. [Arquitura do Co-processador (RTL Viewer Quartus)](#arquitura-do-co-processador-rtl-viewer-quartus)
 6. [Máquina de Estado (FSM)](#máquina-de-estados-fsm)
 7. [Objetivo do Marco 1](#objetivo-do-marco-1)
 8. [Hardware Utilizado](#hardware-utilizado)
@@ -20,11 +21,9 @@ Co-processador ELM
 10. [Softwares Utilizados](#softwares-utilizados)
 11. [Instalação e Configuração do Ambiente](#instalação-e-configuração-do-ambiente)
 12. [Execução dos Testes de Simulação](#execução-dos-testes-de-simulação)
-13. [Resultados dos Testes](#resultados-dos-testes)
-14. [Recursos FPGA Utilizados](#recursos-fpga-utilizados)
-15. [Análise dos Resultados](#análise-dos-resultados)
-16. [Equipe](#equipe)
-17. [Referências](#referências)
+13. [Análise dos Resultados](#análise-dos-resultados)
+14. [Equipe](#equipe)
+15. [Referências](#referências)
 ---
 ### Descrição do Projeto
 Este projeto implementa um classificador de dígitos MNIST em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo Extreme Learning Machine (ELM). Toda a inferência — da leitura da imagem até a predição do dígito — ocorre diretamente no chip, sem auxílio de CPU.
