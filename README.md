@@ -42,31 +42,15 @@ A ELM foi escolhida por três razões principais:
 A ELM opera em quatro estágios sequenciais:
 
 
-```
-┌─────────────┐     ┌──────────┐     ┌────────────┐     ┌──────────┐     ┌──────────────┐
-│  Imagem     │     │  Memória │     │  MAC Unit  │     │ Ativação │     │   Argmax     │
-│  28×28 px   │────▶│  W_in/β  │────▶│  (Q4.12)   │────▶│ Sigmoid  │────▶│  Saída 0–9   │
-│  (784 bytes)│     │  bias    │     │            │     │  (LUT)   │     │              │
-└─────────────┘     └──────────┘     └────────────┘     └──────────┘     └──────────────┘
-                                            ▲
-                                     ┌──────────────┐
-                                     │  FSM Control │
-                                     │  (elm_fsm)   │
-                                     └──────────────┘
-```
+
+![Fluxo de Inferência](gitimages/fsm-flow-data.gif)
+
 
 ### Representação Numérica  Ponto Fixo Q4.12
 
-```
- Bit 15   Bit 14–12    Bit 11–0
-┌───────┬────────────┬─────────────────────────────┐
-│ Sinal │   Inteiro  │        Fração (1/4096)      │
-│  (1b) │    (3b)    │           (12b)             │
-└───────┴────────────┴─────────────────────────────┘
 
-  Faixa: -8.0 até +7.9997...
-  Resolução: ≈ 0.000244
-```
+[![Diagrama Q4.12](https://img.shields.io/badge/Q4.12-Diagrama%20Interativo-1D9E75?style=for-the-badge&logo=html5)](gitimages/q412.html)
+
 
 > 💡 Para converter um valor real `v` para Q4.12: `int(v * 4096)` em Python.
 
@@ -136,6 +120,19 @@ elm_top (top-level)
 | `elm_accel/fsm.v`    | `elm_fsm`    | Gera sinais de controle conforme estado atual         |
 | `elm_accel/memories.v` | `memories`     | ROM/RAM para imagem, pesos W_in, bias e β            |
 | `sim/elm_accel_tb_real.v`    | `elm_accel_tb_real`         | Aplica os testes de todos os módulos            |
+
+
+---
+
+| RAM | Profundidade | Largura | Bits | Tipo |
+|-----|-------------|---------|------|------|
+| `ram_w_in` | 100.352 | 16-bit | 1.605.632 | M10K Single Port |
+| `ram_beta` | 1.280 | 16-bit | 20.480 | M10K Single Port |
+| `ram_bias` | 128 | 16-bit | 2.048 | M10K Single Port |
+| `ram_h` | 128 | 16-bit | 2.048 | M10K Auto |
+| `ram_image` | 784 | 16-bit | 12.544 | M10K Dual Port |
+| **Total** | | | **1.642.752** | |
+
 
 ---
 
@@ -452,32 +449,6 @@ Diferença de 1 ciclo dentro do pipeline da FSM dentro do esperado.
 
 ---
 
-### Recursos FPGA Utilizados
-
-Dados do **Fitter RAM Summary** após síntese no Quartus:
-
-| RAM | Profundidade | Largura | Bits | Tipo |
-|-----|-------------|---------|------|------|
-| `ram_w_in` | 100.352 | 16-bit | 1.605.632 | M10K Single Port |
-| `ram_beta` | 1.280 | 16-bit | 20.480 | M10K Single Port |
-| `ram_bias` | 128 | 16-bit | 2.048 | M10K Single Port |
-| `ram_h` | 128 | 16-bit | 2.048 | M10K Auto |
-| `ram_image` | 784 | 16-bit | 12.544 | M10K Dual Port |
-| **Total** | | | **1.642.752** | |
-
-**Resumo de recursos lógicos:**
-
-| Recurso | Utilizado | Disponível | Percentual |
-|---------|-----------|------------|------------|
-| ALMs (lógica) | 315 | 32.070 | < 1% |
-| Registradores | 306 | — | — |
-| Block memory bits | 1.642.752 | 4.065.280 | 40% |
-| DSP Blocks | 1 | 87 | 1% |
-| Pinos | 55 | 457 | 12% |
-
-A memória `ram_w_in` domina com **97,7% dos bits de memória** consequência direta da dimensão 128×784 da matriz de pesos. A lógica de controle (FSM + MAC + argmax) é ocupando menos de 1% dos ALMs disponíveis.
-
----
 
 ### Análise dos Resultados
 
@@ -496,7 +467,7 @@ A memória `ram_w_in` domina com **97,7% dos bits de memória** consequência di
 - **Imagem fixa no Marco 1:** troca de imagem requer recompilação no Quartus. Resolvido no Marco 2 via MMIO pelo driver Linux
 - **Sem debounce em KEY[1]:** múltiplos pulsos de `start` possíveis em acionamento rápido na placa física
 
-### Desempenho
+#### Desempenho
 
 | Métrica | Valor |
 |---------|-------|
@@ -507,34 +478,21 @@ A memória `ram_w_in` domina com **97,7% dos bits de memória** consequência di
 | Ocupação de memória | 40% dos M10K |
 | Ocupação de lógica | < 1% dos ALMs |
 
-### Timing por Fase de Inferência Questa
+#### Acurácia por Dígito
 
-```
-Ciclos de clock por fase (estimativa):
-
-LOAD            █████████████████████████  784 ciclos
-COMPUTE_HIDDEN  ████████████████████████████████████████████  N×784 ciclos
-ACTIVATE        ████  N ciclos
-COMPUTE_OUTPUT  ████████  N×10 ciclos
-ARGMAX          █  10 ciclos
-
-Total estimado: depende do número de neurônios ocultos N
-```
-### Acurácia por Dígito
-
-| Dígito | Total testado | Correto | Acurácia |
-|--------|---------|---------------|----------|
+| Dígito | Amostras | Correto | Acurácia |
+|--------|--------- |---------------|----------|
 | 0      |    10    |         10      | 100%  |
 | 1      |    10    |          0     | 0%     |
-| 2      |    10    |          1     | 1%    |
-| 3      |    10    |          0     | x      |
-| 4      |    10    |         10     | 100%     |
+| 2      |    10    |          1     | 1%     |
+| 3      |    10    |         x      | x      |
+| 4      |    10    |         10     | 100%   |
 | 5      |    10    |          0     | 0%     |
 | 6      |    10    |          1     | 1%     |
-| 7      |    10    |          0     |0 %     |
-| 8      |    10    |          0     | x      |
-| 9      |    10    |          0     | x      |
-| **Total** |  40    |         22       | **20,2%**  |
+| 7      |    10    |          x     |x       |
+| 8      |    10    |          x     | x      |
+| 9      |    10    |          x     | x      |
+| **Total** |  40    |         22    | **20,2%**  |
 
 > *Os únicos valores reconhecidos foram os apresentados na tabela outros valores em x não foram testados.*
 
