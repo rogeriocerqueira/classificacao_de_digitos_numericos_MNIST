@@ -11,9 +11,9 @@ Co-processador ELM
 
 1. [Descrição do Projeto](#descrição-do-projeto)
 2. [Fluxo de Inferência](#fluxo-de-inferência)
-3. [Representação Númérica](#representação-numérica--ponto-fixo-q412)
+3. [Representação Numérica](#representação-numérica--ponto-fixo-q412)
 4. [Estrutura do Repositório](#📁-estrutura-do-repositório)
-5. [Arquitura do Co-processador (RTL Viewer Quartus)](#arquitura-do-co-processador-rtl-viewer-quartus)
+5. [Arquitetura do Co-processador (RTL Viewer Quartus)](#arquitetura-do-co-processador-rtl-viewer-quartus)
 6. [Máquina de Estado (FSM)](#máquina-de-estados-fsm)
 7. [Objetivo do Marco 1](#objetivo-do-marco-1)
 8. [Hardware Utilizado](#hardware-utilizado)
@@ -75,9 +75,9 @@ Todos os valores são representados em **ponto fixo Q4.12** (1 bit de sinal + 3 
 │   ├── elm_accel_core.v     # Coordena MAC, memória e ativação
 │   ├── mac.v                # Unidade Multiplica-Acumula (Q4.12)
 │   ├── fsm.v                # Controlador de estados da inferência
-│   ├── tanh_lut.v           # Controlador de estados da inferência
-│   ├── argmax.v             # Controlador de estados da inferência
-│   └── ram_image.qip        # Instância da memória RAM-1-Port (Word:7841 16:bits)
+│   ├── tanh_lut.v           # Função de ativação tanh aproximada (LUT)
+│   ├── argmax.v             # Função para converter as saídas da rede em resultado discreto
+│   └── ram_image.qip        # Instância da memória RAM-1-Port (Word:784 16:bits)
 │   ├── ram_w_in.qip         # Instância da memória RAM-1-Port (Word:100352 16:bits)
 │   ├── ram_bias.qip         # Instância da memória RAM-1-Port (Word:128 16:bits)
 │   ├── ram_beta.qip         # Instância da memória RAM-1-Port (Word:7841 16:bits)
@@ -135,7 +135,7 @@ elm_top (top-level)
 
 ---
 
-### Arquitura do Co-processador (RTL Viewer Quartus)
+### Arquitetura do Co-processador (RTL Viewer Quartus)
 
 ![RTL Viewer](gitimages/Technology_map_viewer.jpg)
 <!-- Exportar via Tools > Netlist Viewers > RTL Viewer -->
@@ -484,13 +484,13 @@ Diferença de 1 ciclo dentro do pipeline da FSM dentro do esperado.
 | 0      |    10    |         10      | 100%  |
 | 1      |    10    |          0     | 0%     |
 | 2      |    10    |          1     | 1%     |
-| 3      |    10    |         x      | x      |
+| 3      |    10    |         -      | -      |
 | 4      |    10    |         10     | 100%   |
 | 5      |    10    |          0     | 0%     |
 | 6      |    10    |          1     | 1%     |
-| 7      |    10    |          x     |x       |
-| 8      |    10    |          x     | x      |
-| 9      |    10    |          x     | x      |
+| 7      |    10    |          -     |-       |
+| 8      |    10    |          -     | -      |
+| 9      |    10    |          -     | -      |
 | **Total** |  100    |         22    | **20,2%**  |
 
 > *Os únicos valores reconhecidos foram os apresentados na tabela outros valores em x não foram testados.*
