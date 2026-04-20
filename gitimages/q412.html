@@ -3,475 +3,184 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Q4.12 — Representação em Ponto Fixo</title>
+<title>Q4.12 — Ponto Fixo de 16 bits</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg:       #0e1117;
-    --surface:  #161b27;
-    --surface2: #1e2535;
-    --border:   #2a3348;
-    --text:     #e2e8f0;
-    --muted:    #7a8aaa;
-    --sign-bg:  #2a1a1a; --sign-bd: #c0392b; --sign-tx: #ff6b6b; --sign-lt: #ff8888;
-    --int-bg:   #1a1a2e; --int-bd:  #534AB7; --int-tx:  #a39dff; --int-lt:  #c4c0ff;
-    --frac-bg:  #0d2218; --frac-bd: #1D9E75; --frac-tx: #4ecca3; --frac-lt: #7fffd4;
-    --lsb-bg:   #2a1e0a; --lsb-bd:  #d68910; --lsb-tx:  #f39c12; --lsb-lt:  #f9ca24;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Inter', sans-serif;
-  }
-
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-  }
-
-  .card {
-    width: 100%;
-    max-width: 860px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .card-header {
-    padding: 1.25rem 1.75rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .chip {
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: #1a2a3a;
-    color: #4ecca3;
-    border: 1px solid #1D9E75;
-    letter-spacing: 0.05em;
-  }
-
-  .card-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: -0.02em;
-  }
-
-  .card-body { padding: 1.5rem 1.75rem; }
-
-  /* Section labels */
-  .bit-labels {
-    display: grid;
-    grid-template-columns: 72px 3fr 12fr 1fr;
-    gap: 4px;
-    margin-bottom: 6px;
-    padding: 0 2px;
-  }
-  .bit-labels span {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--muted);
-    text-align: center;
-  }
-  .bit-labels .lbl-sign { color: var(--sign-tx); }
-  .bit-labels .lbl-int  { color: var(--int-tx); }
-  .bit-labels .lbl-frac { color: var(--frac-tx); }
-  .bit-labels .lbl-lsb  { color: var(--lsb-tx); }
-
-  /* Bit row */
-  .bit-row {
-    display: flex;
-    gap: 3px;
-    margin-bottom: 4px;
-  }
-
-  .bit {
-    flex: 1;
-    height: 56px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--surface2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    position: relative;
-    gap: 2px;
-  }
-  .bit:hover { transform: translateY(-2px); }
-  .bit .bval {
-    font-family: var(--mono);
-    font-size: 16px;
-    font-weight: 600;
-    transition: color 0.18s;
-    color: var(--muted);
-  }
-  .bit .bidx {
-    font-family: var(--mono);
-    font-size: 8px;
-    color: #3a4a62;
-    transition: color 0.18s;
-  }
-
-  /* Divider between int and frac */
-  .bit.divider-right { border-right: 2px dashed #4a5a7a !important; }
-
-  /* Active states */
-  .bit.sign  { background: var(--sign-bg); border-color: var(--sign-bd); }
-  .bit.sign .bval { color: var(--sign-tx); }
-  .bit.sign .bidx { color: var(--sign-bd); }
-  .bit.int   { background: var(--int-bg);  border-color: var(--int-bd); }
-  .bit.int .bval  { color: var(--int-tx); }
-  .bit.int .bidx  { color: var(--int-bd); }
-  .bit.frac  { background: var(--frac-bg); border-color: var(--frac-bd); }
-  .bit.frac .bval { color: var(--frac-tx); }
-  .bit.frac .bidx { color: var(--frac-bd); }
-  .bit.lsb   { background: var(--lsb-bg);  border-color: var(--lsb-bd); }
-  .bit.lsb .bval  { color: var(--lsb-tx); }
-  .bit.lsb .bidx  { color: var(--lsb-bd); }
-
-  /* Legend cards */
-  .legend {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin: 1rem 0;
-  }
-  @media (max-width: 600px) { .legend { grid-template-columns: repeat(2,1fr); } }
-
-  .leg-card {
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    background: var(--surface2);
-  }
-  .leg-card:hover { transform: translateY(-1px); }
-  .leg-card.sign { border-color: var(--sign-bd); background: var(--sign-bg); }
-  .leg-card.int  { border-color: var(--int-bd);  background: var(--int-bg); }
-  .leg-card.frac { border-color: var(--frac-bd); background: var(--frac-bg); }
-  .leg-card.lsb  { border-color: var(--lsb-bd);  background: var(--lsb-bg); }
-
-  .leg-card .leg-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    margin-bottom: 4px;
-  }
-  .leg-card.sign .leg-label { color: var(--sign-tx); }
-  .leg-card.int  .leg-label { color: var(--int-tx); }
-  .leg-card.frac .leg-label { color: var(--frac-tx); }
-  .leg-card.lsb  .leg-label { color: var(--lsb-tx); }
-
-  .leg-card .leg-name {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-  .leg-card .leg-info {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  /* Formula bar */
-  .formula-bar {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    margin: 1rem 0 0.75rem;
-    line-height: 1.8;
-  }
-  .formula-bar .hl { color: var(--text); font-weight: 600; }
-  .formula-bar .c-sign { color: var(--sign-tx); }
-  .formula-bar .c-int  { color: var(--int-tx); }
-  .formula-bar .c-frac { color: var(--frac-tx); }
-  .formula-bar .c-lsb  { color: var(--lsb-tx); }
-
-  /* Info panel */
-  .info-panel {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #0d1520;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--muted);
-    min-height: 38px;
-    transition: color 0.2s;
-  }
-  .info-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--border);
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-
-  /* Interactive example */
-  .example-section {
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--border);
-  }
-  .example-label {
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 8px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    font-weight: 500;
-  }
-  .example-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .example-row label {
-    font-size: 13px;
-    color: var(--muted);
-    white-space: nowrap;
-  }
-  .example-row input[type=range] {
-    flex: 1;
-    min-width: 120px;
-    accent-color: #4ecca3;
-  }
-  .ex-value {
-    font-family: var(--mono);
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--frac-lt);
-    min-width: 70px;
-    text-align: right;
-  }
-  .ex-hex {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 4px 10px;
-  }
-  .ex-bits-row {
-    display: flex;
-    gap: 2px;
-    margin-top: 8px;
-    flex-wrap: nowrap;
-  }
-  .ex-bit {
-    flex: 1;
-    height: 28px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 600;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    transition: all 0.12s;
-  }
-  .ex-bit.b1.s { background: var(--sign-bg); border-color: var(--sign-bd); color: var(--sign-tx); }
-  .ex-bit.b1.i { background: var(--int-bg);  border-color: var(--int-bd);  color: var(--int-tx); }
-  .ex-bit.b1.f { background: var(--frac-bg); border-color: var(--frac-bd); color: var(--frac-tx); }
-  .ex-bit.b1.l { background: var(--lsb-bg);  border-color: var(--lsb-bd);  color: var(--lsb-tx); }
-  .ex-bit.b0   { color: #3a4a62; }
-
-  footer {
-    padding: 0.75rem 1.75rem;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-    color: #3a4a62;
-    font-family: var(--mono);
-    display: flex;
-    justify-content: space-between;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f5f6fa;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem}
+.wrap{width:100%;max-width:900px}
+.card{background:#fff;border:1px solid #e2e6f0;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.card-head{padding:1rem 1.5rem;border-bottom:1px solid #e2e6f0;display:flex;align-items:center;gap:10px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#e8f5ee;color:#0f6e56;border:1px solid #9fe1cb;letter-spacing:.05em}
+.card-title{font-size:14px;font-weight:600;color:#1a1f2e}
+.card-body{padding:1.5rem 1.5rem 1.25rem}
+.sec-labels{display:flex;gap:0;margin-bottom:4px}
+.sec-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;text-align:center}
+.sec-lbl::after{content:'';display:block;height:2px;margin-top:3px;border-radius:1px}
+.sec-lbl.sl-sign{width:62px;color:#c0392b}.sec-lbl.sl-sign::after{background:#e74c3c}
+.sec-lbl.sl-int{width:114px;color:#534ab7}.sec-lbl.sl-int::after{background:#7f77dd}
+.sec-lbl.sl-frac{flex:1;color:#0f6e56}.sec-lbl.sl-frac::after{background:#1d9e75}
+.sec-lbl.sl-lsb{width:52px;color:#d68910}.sec-lbl.sl-lsb::after{background:#f39c12}
+.bit-row{display:flex;gap:3px;margin:8px 0 4px}
+.bit{flex:1;min-height:64px;border-radius:7px;border:1.5px solid #e2e6f0;background:#f8f9fc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .18s;gap:2px}
+.bit:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.bit .bv{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:#aaa}
+.bit .bi{font-family:'JetBrains Mono',monospace;font-size:8px;color:#ccc}
+.bit.sign{background:#fff0ef;border-color:#e74c3c}.bit.sign .bv{color:#c0392b}.bit.sign .bi{color:#e74c3c}
+.bit.int{background:#f0eeff;border-color:#7f77dd}.bit.int .bv{color:#534ab7}.bit.int .bi{color:#7f77dd}
+.bit.frac{background:#edfaf4;border-color:#1d9e75}.bit.frac .bv{color:#0f6e56}.bit.frac .bi{color:#1d9e75}
+.bit.lsb{background:#fff8e6;border-color:#f39c12}.bit.lsb .bv{color:#d68910}.bit.lsb .bi{color:#f39c12}
+.ponto-area{position:relative;height:20px;margin-bottom:6px}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:1rem 0 .75rem}
+@media(max-width:560px){.legend{grid-template-columns:repeat(2,1fr)}}
+.leg{border-radius:10px;padding:10px 12px;cursor:pointer;transition:transform .18s;border:1.5px solid}
+.leg:hover{transform:translateY(-2px)}
+.leg.sign{background:#fff0ef;border-color:#e74c3c}
+.leg.int{background:#f0eeff;border-color:#7f77dd}
+.leg.frac{background:#edfaf4;border-color:#1d9e75}
+.leg.lsb{background:#fff8e6;border-color:#f39c12}
+.leg-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.06em;margin-bottom:3px}
+.leg.sign .leg-lbl{color:#c0392b}.leg.int .leg-lbl{color:#534ab7}.leg.frac .leg-lbl{color:#0f6e56}.leg.lsb .leg-lbl{color:#d68910}
+.leg-name{font-size:12px;font-weight:600;color:#1a1f2e;margin-bottom:5px}
+.leg-info{font-size:11px;color:#64748b;line-height:1.55}
+.formula{background:#f8f9fc;border:1px solid #e2e6f0;border-radius:9px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#64748b;line-height:1.9;margin-bottom:8px}
+.formula .hl{color:#1a1f2e;font-weight:600}
+.formula .cs{color:#c0392b}.formula .ci{color:#534ab7}.formula .cf{color:#0f6e56}.formula .cl{color:#d68910}
+.info{display:flex;align-items:center;gap:10px;background:#f8f9fc;border:1px solid #e2e6f0;border-radius:8px;padding:9px 14px;font-size:12px;color:#64748b;min-height:36px;transition:color .2s}
+.info-dot{width:8px;height:8px;border-radius:50%;background:#cbd5e1;flex-shrink:0;transition:background .2s}
+.sim{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid #e2e6f0}
+.sim-lbl{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;font-weight:500;margin-bottom:8px}
+.sim-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sim-row label{font-size:13px;color:#64748b;white-space:nowrap}
+.sim-row input[type=range]{flex:1;min-width:120px;accent-color:#1d9e75}
+.sim-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:#0f6e56;min-width:72px;text-align:right}
+.sim-hex{font-family:'JetBrains Mono',monospace;font-size:12px;color:#64748b;background:#f1f5f9;border:1px solid #e2e6f0;border-radius:6px;padding:4px 10px}
+.sim-bits{display:flex;gap:2px;margin-top:8px}
+.sbit{flex:1;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;background:#f1f5f9;border:1px solid #e2e6f0;color:#cbd5e1;transition:all .12s}
+.sbit.b1.s{background:#fff0ef;border-color:#e74c3c;color:#c0392b}
+.sbit.b1.i{background:#f0eeff;border-color:#7f77dd;color:#534ab7}
+.sbit.b1.f{background:#edfaf4;border-color:#1d9e75;color:#0f6e56}
+.sbit.b1.l{background:#fff8e6;border-color:#f39c12;color:#d68910}
+footer{padding:.75rem 1.5rem;border-top:1px solid #e2e6f0;font-size:10px;color:#94a3b8;font-family:'JetBrains Mono',monospace;display:flex;justify-content:space-between;background:#fafbfc}
 </style>
 </head>
 <body>
-<div class="card">
-
-  <div class="card-header">
+<div class="wrap"><div class="card">
+  <div class="card-head">
     <span class="chip">Q4.12</span>
     <span class="card-title">Representação Numérica — Ponto Fixo de 16 bits</span>
   </div>
-
   <div class="card-body">
-
-    <!-- Section labels -->
-    <div class="bit-labels">
-      <span class="lbl-sign">Bit 15</span>
-      <span class="lbl-int">Bits 14–12</span>
-      <span class="lbl-frac">Bits 11–1</span>
-      <span class="lbl-lsb">Bit 0</span>
+    <div class="sec-labels">
+      <div class="sec-lbl sl-sign">Bit 15</div>
+      <div class="sec-lbl sl-int">Bit 14–12</div>
+      <div class="sec-lbl sl-frac">Bit 11–0</div>
+      <div class="sec-lbl sl-lsb">Bit 0</div>
     </div>
-
-    <!-- Bit cells -->
     <div class="bit-row" id="bitrow"></div>
-
-    <!-- Legend cards -->
+    <div class="ponto-area" id="pa"></div>
     <div class="legend">
-      <div class="leg-card sign" onclick="focusGroup('sign')">
-        <div class="leg-label">SINAL · 1 BIT</div>
+      <div class="leg sign" onclick="focus_('sign')">
+        <div class="leg-lbl">SINAL · 1 BIT</div>
         <div class="leg-name">Bit 15</div>
-        <div class="leg-info">0 = positivo<br>1 = negativo<br>complemento de 2</div>
+        <div class="leg-info">0 = positivo<br>1 = negativo<br>(2-comp)<br>bit 15</div>
       </div>
-      <div class="leg-card int" onclick="focusGroup('int')">
-        <div class="leg-label">INTEIRO · 3 BITS</div>
+      <div class="leg int" onclick="focus_('int')">
+        <div class="leg-lbl">INTEIRO · 3 BITS</div>
         <div class="leg-name">Bits 14–12</div>
-        <div class="leg-info">pesos: 4, 2, 1<br>valores: 0 a 7<br>parte antes do ponto</div>
+        <div class="leg-info">valores: 0 ate 7<br>peso: 4, 2, 1<br>bits 14-12</div>
       </div>
-      <div class="leg-card frac" onclick="focusGroup('frac')">
-        <div class="leg-label">FRAÇÃO · 12 BITS</div>
+      <div class="leg frac" onclick="focus_('frac')">
+        <div class="leg-lbl">FRAÇÃO · 12 BITS</div>
         <div class="leg-name">Bits 11–0</div>
-        <div class="leg-info">resolução: 1/4096<br>≈ 0.000244<br>parte após o ponto</div>
+        <div class="leg-info">resolucao: 1/4096<br>~= 0.000244<br>bits 11-0</div>
       </div>
-      <div class="leg-card lsb" onclick="focusGroup('lsb')">
-        <div class="leg-label">LSB · BIT 0</div>
-        <div class="leg-name">Menor unidade</div>
-        <div class="leg-info">peso: 2⁻¹²<br>= 1/4096<br>menor incremento</div>
+      <div class="leg lsb" onclick="focus_('lsb')">
+        <div class="leg-lbl">LSB · BIT 0</div>
+        <div class="leg-name">Bit 0</div>
+        <div class="leg-info">peso: 2^-12<br>= 1/4096<br>menor incremento</div>
       </div>
     </div>
-
-    <!-- Formula -->
-    <div class="formula-bar">
-      valor = <span class="c-sign">(-1)^S</span> × ( <span class="c-int">I<sub>bits</sub></span> + <span class="c-frac">F<sub>bits</sub></span> / <span class="c-lsb">4096</span> )
-      <br>
-      <span style="color:#3a4a62">Python →</span> <span class="hl">int(v * 4096)</span>
-      &nbsp;&nbsp;<span style="color:#3a4a62">|</span>&nbsp;&nbsp;
-      Faixa: <span class="c-sign">-8.0</span> até <span class="c-frac">+7.9997…</span>
-      &nbsp;&nbsp;<span style="color:#3a4a62">|</span>&nbsp;&nbsp;
-      Exemplo: 1.5 → <span class="c-lsb">0x1800</span>
+    <div class="formula">
+      valor = <span class="cs">(-1)^S</span> * ( <span class="ci">I_bits</span> + <span class="cf">F_bits</span> / <span class="cl">4096</span> )
+      <br>Python: <span class="hl">int(v * 4096)</span> &nbsp;|&nbsp; Faixa: <span class="cs">-8.0</span> ate <span class="cf">+7.9997...</span> &nbsp;|&nbsp; Exemplo: 1.5 = <span class="cl">0x1800</span>
     </div>
-
-    <!-- Info panel -->
-    <div class="info-panel" id="info-panel">
-      <div class="info-dot" id="info-dot"></div>
-      <span id="info-text">Clique em qualquer bit ou seção para ver detalhes</span>
-    </div>
-
-    <!-- Interactive example -->
-    <div class="example-section">
-      <div class="example-label">Simulador — converta um valor para Q4.12</div>
-      <div class="example-row">
+    <div class="info" id="info"><div class="info-dot" id="idot"></div><span id="itxt">Clique em qualquer bit ou secao para ver detalhes</span></div>
+    <div class="sim">
+      <div class="sim-lbl">Simulador — converta um valor para Q4.12</div>
+      <div class="sim-row">
         <label>Valor:</label>
-        <input type="range" id="val-slider" min="-8" max="7.9997" step="0.0625" value="1.5" oninput="updateExample(this.value)"/>
-        <span class="ex-value" id="ex-val">1.5</span>
-        <span class="ex-hex" id="ex-hex">0x1800</span>
+        <input type="range" id="sl" min="-8" max="7.9375" step="0.0625" value="1.5" oninput="upd(this.value)"/>
+        <span class="sim-val" id="sv">1.5000</span>
+        <span class="sim-hex" id="sh">0x1800</span>
       </div>
-      <div class="ex-bits-row" id="ex-bits"></div>
+      <div class="sim-bits" id="sb"></div>
     </div>
-
   </div>
-
-  <footer>
-    <span>FPGA · Classificação MNIST · ELM Accelerator</span>
-    <span>Q4.12 fixed-point · 16 bits</span>
-  </footer>
-</div>
-
+  <footer><span>FPGA · Classificação MNIST · ELM Accelerator</span><span>Q4.12 fixed-point · 16 bits</span></footer>
+</div></div>
 <script>
-const GROUPS = {
-  sign: { cls:'sign', color:'#ff6b6b', dot:'#c0392b',
-    msg:'Sinal (bit 15): complemento de 2 — 0 = positivo, 1 = negativo. Para negar: invertir todos os bits e somar 1.' },
-  int:  { cls:'int',  color:'#a39dff', dot:'#534AB7',
-    msg:'Inteiro (bits 14-12): 3 bits representam a parte inteira. Pesos: bit14=4, bit13=2, bit12=1. Valores de 0 a 7.' },
-  frac: { cls:'frac', color:'#4ecca3', dot:'#1D9E75',
-    msg:'Fração (bits 11-0): 12 bits com pesos 2⁻¹ até 2⁻¹². Resolução de 1/4096 ≈ 0.000244 por unidade.' },
-  lsb:  { cls:'lsb',  color:'#f39c12', dot:'#d68910',
-    msg:'LSB (bit 0): menor unidade representável — vale 2⁻¹² = 1/4096 ≈ 0.000244. Define a precisão do formato.' },
+const GRP=['sign','int','int','int','frac','frac','frac','frac','frac','frac','frac','frac','frac','frac','frac','lsb'];
+const LBL=['S','I','I','I','F','F','F','F','F','F','F','F','F','F','F','F'];
+const SUB=['sinal','b14','b13','b12','b11','b10','b9','b8','b7','b6','b5','b4','b3','b2','b1','b0 (LSB)'];
+const INFO={
+  sign:'Sinal (bit 15): complemento de 2 — 0 = positivo, 1 = negativo. Para negar: inverter todos os bits e somar 1.',
+  int:'Inteiro (bits 14-12): 3 bits representam a parte inteira. Pesos: bit14=4, bit13=2, bit12=1. Valores de 0 a 7.',
+  frac:'Fracao (bits 11-0): 12 bits com pesos 2⁻¹ ate 2⁻¹². Resolucao de 1/4096 ≈ 0.000244 por unidade.',
+  lsb:'LSB (bit 0): menor unidade representavel — vale 2⁻¹² = 1/4096 ≈ 0.000244. Define a precisao do formato.'
 };
+const DOTC={sign:'#e74c3c',int:'#7f77dd',frac:'#1d9e75',lsb:'#f39c12'};
+const TXC={sign:'#c0392b',int:'#534ab7',frac:'#0f6e56',lsb:'#d68910'};
 
-const BIT_GROUP = [
-  'sign',
-  'int','int','int',
-  'frac','frac','frac','frac','frac','frac','frac','frac','frac','frac','frac',
-  'lsb',
-];
+const row=document.getElementById('bitrow');
+LBL.forEach((l,i)=>{
+  const d=document.createElement('div');
+  d.className='bit '+GRP[i];
+  d.id='bc'+i;
+  d.onclick=()=>focus_(GRP[i]);
+  d.innerHTML='<span class="bv">'+l+'</span><span class="bi">'+SUB[i]+'</span>';
+  row.appendChild(d);
+});
 
-function buildBitRow() {
-  const row = document.getElementById('bitrow');
-  for (let i = 15; i >= 0; i--) {
-    const g = BIT_GROUP[15 - i];
-    const div = document.createElement('div');
-    div.className = 'bit ' + g;
-    div.id = 'bit' + i;
-    div.onclick = () => focusGroup(g);
-    div.innerHTML = `<span class="bval">0</span><span class="bidx">b${i}</span>`;
-    if (i === 12) div.style.borderRight = '2px dashed #4a5a7a';
-    row.appendChild(div);
+setTimeout(()=>{
+  const pa=document.getElementById('pa');
+  const cells=row.querySelectorAll('.bit');
+  const c3=cells[3].getBoundingClientRect();
+  const rr=row.getBoundingClientRect();
+  const x=c3.right-rr.left;
+  pa.innerHTML='<div style="position:absolute;left:'+x+'px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center"><div style="width:2px;height:6px;background:#94a3b8;border-radius:1px"></div><span style="font-size:10px;color:#94a3b8;margin-top:2px">ponto</span></div>';
+},100);
+
+function focus_(g){
+  document.getElementById('itxt').textContent=INFO[g];
+  document.getElementById('itxt').style.color=TXC[g];
+  document.getElementById('idot').style.background=DOTC[g];
+}
+
+function q412(v){const r=Math.round(parseFloat(v)*4096);return Math.max(-32768,Math.min(32767,r))&0xFFFF}
+
+function upd(v){
+  const val=parseFloat(v);
+  document.getElementById('sv').textContent=val.toFixed(4);
+  const raw=q412(val);
+  document.getElementById('sh').textContent='0x'+raw.toString(16).toUpperCase().padStart(4,'0');
+  const sb=document.getElementById('sb');
+  sb.innerHTML='';
+  for(let i=15;i>=0;i--){
+    const b=(raw>>i)&1;
+    const gi=GRP[15-i];
+    const d=document.createElement('div');
+    d.className='sbit '+(b?'b1 '+gi:'b0');
+    d.textContent=b;
+    sb.appendChild(d);
+  }
+  for(let i=0;i<16;i++){
+    const bi=15-i;const b=(raw>>bi)&1;
+    const el=document.getElementById('bc'+i);
+    if(el)el.querySelector('.bv').textContent=b?'1':'0';
   }
 }
-
-function focusGroup(g) {
-  const info = GROUPS[g];
-  document.getElementById('info-text').textContent = info.msg;
-  document.getElementById('info-text').style.color = info.color;
-  document.getElementById('info-dot').style.background = info.dot;
-}
-
-function q412(v) {
-  const raw = Math.round(v * 4096);
-  const clamped = Math.max(-32768, Math.min(32767, raw));
-  return (clamped & 0xFFFF);
-}
-
-function updateExample(v) {
-  const val = parseFloat(v);
-  document.getElementById('ex-val').textContent = val.toFixed(4);
-  const raw = q412(val);
-  document.getElementById('ex-hex').textContent = '0x' + raw.toString(16).toUpperCase().padStart(4,'0');
-
-  const bits = [];
-  for (let i = 15; i >= 0; i--) bits.push((raw >> i) & 1);
-
-  const container = document.getElementById('ex-bits');
-  container.innerHTML = '';
-  bits.forEach((b, idx) => {
-    const i = 15 - idx;
-    const g = BIT_GROUP[idx];
-    const span = document.createElement('div');
-    span.className = `ex-bit ${b ? 'b1 '+g : 'b0'}`;
-    span.textContent = b;
-    container.appendChild(span);
-  });
-
-  for (let i = 15; i >= 0; i--) {
-    const el = document.getElementById('bit'+i);
-    if (el) el.querySelector('.bval').textContent = (raw >> i) & 1;
-  }
-}
-
-buildBitRow();
-updateExample(1.5);
+upd(1.5);
 </script>
 </body>
 </html>
