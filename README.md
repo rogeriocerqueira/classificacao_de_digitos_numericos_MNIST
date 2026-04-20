@@ -26,7 +26,7 @@ Co-processador ELM
 15. [Referências](#referências)
 ---
 ### Descrição do Projeto
-Este projeto implementa um classificador de dígitos MNIST em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo Extreme Learning Machine (ELM). Toda a inferência — da leitura da imagem até a predição do dígito — ocorre diretamente no chip, sem auxílio de CPU.
+Este projeto implementa um classificador de dígitos MNIST em hardware reconfigurável (FPGA), utilizando uma rede neural do tipo Extreme Learning Machine (ELM). Toda a inferência da leitura da imagem até a predição do dígito ocorre diretamente no chip, sem auxílio de CPU.
 
 
 ### Por que ELM?
