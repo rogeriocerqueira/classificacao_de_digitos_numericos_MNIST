@@ -1,86 +1,154 @@
-# Arquivos de banco de dados e logs do processador
-*.logdb
-*.qmsg
+# ─────────────────────────────────────────
+#  Quartus Prime — Arquivos gerados
+# ─────────────────────────────────────────
+*.qws
 *.rdb
 *.hdb
-*.qns
-*.flock
 *.cdb
 *.nvd
 *.sci
-*.txt
 *.tdb
+*.flock
+*.logdb
+*.qmsg
+*.qns
+*.done
+*.status
+*.pin
+*.smsg
 
-# Diretórios de banco de dados e debug
+# Relatórios de síntese
+*.rpt
+*.summary
+*.flow.rpt
+*.fit.rpt
+*.map.rpt
+*.sta.rpt
+
+# Bitstreams (grandes demais para o repositório)
+*.sof
+*.pof
+*.rbf
+
+# Backups de arquivos HDL
+*.v.bak
+*.sv.bak
+*.vhd.bak
+*.qsf.bak
+*.qsys.bak
+
+# ─────────────────────────────────────────
+#  Quartus — Diretórios gerados
+# ─────────────────────────────────────────
 **/db/
 **/dbg/
 **/rdb/
-
-
-# Arquivos específicos do projeto
-processador.*
-processador.map.*
-processador.npp.*
-processador.pre_map.*
-processador.quiproj.*
-processador.root_partition.*
-processador.rttlv_*
-processador.sgate.*
-processador.sld_*
-processador.smart_action.txt
-processador.smp_dump.txt
-processador.sta_*
-
-# Arquivos de backup Verilog (bo.bak 1 a 12)
-processador_run_msim_rtl_verilog.do
-processador_run_msim_rtl_verilog.do.bak1 … .bak11
-processador_run_msim_gate_verilog.do
-
-# Quartus/ModelSim simulation files
-processador_run_msim_*.do
-processador_run_msim_*.do.bak*
-# Arquivos comuns de ferramentas Verilog/FPGA
-*.v.bak
-*.sv.bak
-*.qpf
-*.qsf
-*.sdc
-*.sof
-*.pof
-*.rpt
-*.summary
-*.pin
-*.fit.rpt
-*.flow.rpt
-*.map.rpt
-*.sta.rpt
-*.qws
-*.done
-*.status
-
-# Diretórios comuns de saída de ferramentas
-output_files/
+**/hdb/
 incremental_db/
 greybox_tmp/
-db/
 logic_utilizer/
-hdb/
-rdb/
-dbg/
+**/questa/
+**/work/
+**/rtl_work/
+**/altera_mf/
+stamp/
+hps_isw_handoff/
 
-# Sistemas operacionais
+# ─────────────────────────────────────────
+#  HPS / Platform Designer — Gerados
+# ─────────────────────────────────────────
+*.sopcinfo
+*.debuginfo
+*.regmap
+*.cmp
+*.svd
+*.qip
+*.html
+*.xml
+hps_clock_info.xml
+c5_pin_model_dump.txt
+hps_sdram_p0_all_pins.txt
+hps_sdram_p0_summary.csv
+*_assignment_defaults.qdf
+
+# Diretórios gerados pelo Platform Designer (Qsys)
+# Contém IP cores, interconnects e síntese do soc_system
+**/soc_system/
+platform-designer/elm_system/
+
+# IP cores gerados pela Altera — altera_merlin, altera_mem_if, etc.
+altera_merlin_*.sv
+altera_merlin_*.v
+altera_reset_*.v
+altera_reset_*.sdc
+altera_std_*.v
+altera_wrap_*.sv
+altera_mem_if_*.sv
+altera_mem_if_*.v
+
+# HPS SDRAM — gerados pelo Wizard
+hps_sdram_p0_*.v
+hps_sdram_p0_*.sv
+hps_AC_ROM.hex
+hps_inst_ROM.hex
+altdq_dqs2_acv_*.v
+altdq_dqs2_acv_*.sv
+
+# Interconnect gerado — soc_system_mm_interconnect_*
+soc_system_mm_interconnect_*.v
+soc_system_mm_interconnect_*.sv
+
+# elm_system gerado — arquivos derivados do .qsys
+elm_system_ctrl.v
+elm_system_data_in.v
+elm_system_data_out.v
+elm_system_hps_*.sv
+elm_system_hps_*.sdc
+elm_system_hps_*.v
+elm_system_hps_hps.svd
+
+# ─────────────────────────────────────────
+#  Driver C + Assembly — Compilados
+# ─────────────────────────────────────────
+*.o
+*.a
+*.elf
+
+# Executáveis sem extensão (binários ARM)
+Marco2-driver/elm_test
+Marco2-driver/marco2_test
+Marco2-driver/elm_exec
+
+# ─────────────────────────────────────────
+#  Simulação ModelSim / Questa
+# ─────────────────────────────────────────
+*.vcd
+*.wlf
+modelsim.ini
+transcript
+**/work/
+**/questa/
+*_run_msim_*.do
+*_run_msim_*.do.bak*
+
+# ─────────────────────────────────────────
+#  Sistemas operacionais
+# ─────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Editores
+# ─────────────────────────────────────────
+#  Editores
+# ─────────────────────────────────────────
 *.swp
 *.swo
 *~
 .vscode/
 .idea/
+
+# ─────────────────────────────────────────
+#  Imagens MNIST (muitos arquivos pequenos)
+# ─────────────────────────────────────────
 **/mnist_png/
-**/questa/
-**/work/
-**/rtl_work/
-**/altera_mf/
+docs/images/
