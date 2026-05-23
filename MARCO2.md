@@ -63,15 +63,15 @@ A DE1-SoC usa um chip Cyclone V que contém dois mundos dentro do mesmo encapsul
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Chip Cyclone V                        │
-│                                                          │
-│  ┌───────────────────┐          ┌─────────────────────┐  │
-│  │        HPS        │          │        FPGA         │  │
-│  │  ARM Cortex-A9    │          │  CoProcessor ELM    │  │
-│  │  Linux rodando    │◄────────►│  (rede neural em    │  │
-│  │  Driver ASM       │  bridge  │   hardware)         │  │
-│  │                   │          │  BRAM com pesos     │  │
-│  └───────────────────┘          └─────────────────────┘  │
+│                    Chip Cyclone V                       │
+│                                                         │
+│  ┌───────────────────┐          ┌─────────────────────┐ │
+│  │        HPS        │          │        FPGA         │ │
+│  │  ARM Cortex-A9    │          │  CoProcessor ELM    │ │
+│  │  Linux rodando    │◄────────►│  (rede neural em    │ │
+│  │  Driver ASM       │  bridge  │   hardware)         │ │
+│  │                   │          │  BRAM com pesos     │ │
+│  └───────────────────┘          └─────────────────────┘ │
 └─────────────────────────────────────────────────────────┘
 ```
 
