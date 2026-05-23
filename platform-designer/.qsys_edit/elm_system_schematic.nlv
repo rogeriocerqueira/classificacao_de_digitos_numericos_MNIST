@@ -1,0 +1,75 @@
+# # File gsaved with Nlview version 6.3.8  2013-12-19 bk=1.2992 VDI=34 GEI=35
+# 
+preplace inst elm_system.hps.scu -pg 1
+preplace inst elm_system.hps.usb1 -pg 1
+preplace inst elm_system.hps.sysmgr -pg 1
+preplace inst elm_system.hps.axi_ocram -pg 1
+preplace inst elm_system.hps.wd_timer0 -pg 1
+preplace inst elm_system.hps.timer0 -pg 1
+preplace inst elm_system.hps.bridges -pg 1
+preplace inst elm_system.clk_0 -pg 1 -lvl 1 -y 470
+preplace inst elm_system.hps.spim0 -pg 1
+preplace inst elm_system.hps.wd_timer1 -pg 1
+preplace inst elm_system.hps.timer1 -pg 1
+preplace inst elm_system.hps.arm_gic_0 -pg 1
+preplace inst elm_system.hps.clk_0 -pg 1
+preplace inst elm_system.hps.dcan0 -pg 1
+preplace inst elm_system.hps.spim1 -pg 1
+preplace inst elm_system.hps.timer2 -pg 1
+preplace inst elm_system.hps.axi_sdram -pg 1
+preplace inst elm_system.hps.dcan1 -pg 1
+preplace inst elm_system.hps.timer3 -pg 1
+preplace inst elm_system.hps.qspi -pg 1
+preplace inst elm_system.hps.hps_io.border -pg 1
+preplace inst elm_system.hps.clkmgr -pg 1
+preplace inst elm_system.hps.arm_a9_0 -pg 1
+preplace inst elm_system.hps.fpga_interfaces -pg 1
+preplace inst elm_system.hps.l3regs -pg 1
+preplace inst elm_system.hps.nand0 -pg 1
+preplace inst elm_system.hps.i2c0 -pg 1
+preplace inst elm_system.hps.arm_a9_1 -pg 1
+preplace inst elm_system.hps.f2s_periph_ref_clk -pg 1
+preplace inst elm_system.ctrl -pg 1 -lvl 1 -y 30
+preplace inst elm_system -pg 1 -lvl 1 -y 40 -regy -20
+preplace inst elm_system.hps.gmac0 -pg 1
+preplace inst elm_system.hps.i2c1 -pg 1
+preplace inst elm_system.hps.gmac1 -pg 1
+preplace inst elm_system.hps.sdmmc -pg 1
+preplace inst elm_system.hps.i2c2 -pg 1
+preplace inst elm_system.hps.uart0 -pg 1
+preplace inst elm_system.hps.dma -pg 1
+preplace inst elm_system.hps.hps_io -pg 1
+preplace inst elm_system.hps -pg 1 -lvl 1 -y 260
+preplace inst elm_system.hps.timer -pg 1
+preplace inst elm_system.hps.i2c3 -pg 1
+preplace inst elm_system.hps.gpio0 -pg 1
+preplace inst elm_system.hps.uart1 -pg 1
+preplace inst elm_system.hps.rstmgr -pg 1
+preplace inst elm_system.hps.L2 -pg 1
+preplace inst elm_system.hps.eosc1 -pg 1
+preplace inst elm_system.data_in -pg 1 -lvl 1 -y 130
+preplace inst elm_system.hps.sdrctl -pg 1
+preplace inst elm_system.hps.gpio1 -pg 1
+preplace inst elm_system.hps.eosc2 -pg 1
+preplace inst elm_system.hps.usb0 -pg 1
+preplace inst elm_system.hps.gpio2 -pg 1
+preplace inst elm_system.hps.fpgamgr -pg 1
+preplace inst elm_system.hps.f2s_sdram_ref_clk -pg 1
+preplace inst elm_system.data_out -pg 1 -lvl 1 -y 530
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)elm_system.data_out_reset,(SLAVE)data_out.reset) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(MASTER)clk_0.clk_reset,(MASTER)elm_system.clk_0_clk_reset) 1 1 1 N
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)clk_0.clk_in,(SLAVE)elm_system.clk) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)elm_system.data_out_external_connection,(SLAVE)data_out.external_connection) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)ctrl.s1,(SLAVE)elm_system.ctrl_s1) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)elm_system.hps_h2f_mpu_events,(SLAVE)hps.h2f_mpu_events) 1 0 1 NJ
+preplace netloc FAN_OUT<net_container>elm_system</net_container>(SLAVE)ctrl.clk,(SLAVE)data_in.clk,(SLAVE)hps.h2f_axi_clock,(SLAVE)hps.h2f_lw_axi_clock,(SLAVE)hps.f2h_sdram0_clock,(SLAVE)hps.f2h_axi_clock,(MASTER)clk_0.clk,(SLAVE)data_out.clk) 1 0 2 210 460 520
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)data_in.s1,(SLAVE)elm_system.data_in_s1) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)data_in.external_connection,(SLAVE)elm_system.data_in_external_connection) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)ctrl.external_connection,(SLAVE)elm_system.ctrl_external_connection) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)ctrl.reset,(SLAVE)elm_system.ctrl_reset) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)elm_system.reset,(SLAVE)clk_0.clk_in_reset) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)elm_system.memory,(SLAVE)hps.memory) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)elm_system.data_out_s1,(SLAVE)data_out.s1) 1 0 1 NJ
+preplace netloc EXPORT<net_container>elm_system</net_container>(SLAVE)elm_system.data_in_reset,(SLAVE)data_in.reset) 1 0 1 NJ
+levelinfo -pg 1 0 180 670
+levelinfo -hier elm_system 190 330 540

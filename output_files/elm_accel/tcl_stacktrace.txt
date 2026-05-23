@@ -1,0 +1,48 @@
+Tue Apr 14 09:12:06 -03 2026
+Trace back: window ".srcobjdlg" was deleted before its visibility changed
+    while executing
+"tkwait visibility $w"
+    (procedure "tk_dialog" line 119)
+    invoked from within
+"tk_dialog .srcobjdlg "Warning!" "$msg" "" 1 Overwrite Reload Ignore"
+    (object "::.main_pane.source.interior.cs.body.srcobj" method "::vsimwidgets::Srcobj::CheckModification" body line 18)
+    invoked from within
+"::.main_pane.source.interior.cs.body.srcobj CheckModification"
+    (in namespace inscope "::vsimwidgets::Srcobj" script line 1)
+    invoked from within
+"namespace inscope ::vsimwidgets::Srcobj {::.main_pane.source.interior.cs.body.srcobj CheckModification}"
+    (command bound to event)
+  <2:/home/rogerio/intelFPGA_lite/24.1std/questa_fse/linux_x86_64/tk8.6/bgerror.tcl:106: ::tkerror {window ".srcobjdlg" was deleted before its visibility changed}
+  <1:proc:331: ::tk::dialog::error::bgerror {window ".srcobjdlg" was deleted before its visibility changed}
+Tue Apr 14 09:27:16 -03 2026
+Trace back: window ".srcobjdlg" was deleted before its visibility changed
+    while executing
+"tkwait visibility $w"
+    (procedure "tk_dialog" line 119)
+    invoked from within
+"tk_dialog .srcobjdlg "Warning!" "$msg" "" 1 Overwrite Reload Ignore"
+    (object "::.main_pane.source.interior.cs.body.srcobj" method "::vsimwidgets::Srcobj::CheckModification" body line 18)
+    invoked from within
+"::.main_pane.source.interior.cs.body.srcobj CheckModification"
+    (in namespace inscope "::vsimwidgets::Srcobj" script line 1)
+    invoked from within
+"namespace inscope ::vsimwidgets::Srcobj {::.main_pane.source.interior.cs.body.srcobj CheckModification}"
+    (command bound to event)
+  <2:/home/rogerio/intelFPGA_lite/24.1std/questa_fse/linux_x86_64/tk8.6/bgerror.tcl:106: ::tkerror {window ".srcobjdlg" was deleted before its visibility changed}
+  <1:proc:331: ::tk::dialog::error::bgerror {window ".srcobjdlg" was deleted before its visibility changed}
+Tue Apr 14 10:18:58 -03 2026
+Trace back: window ".srcobjdlg" was deleted before its visibility changed
+    while executing
+"tkwait visibility $w"
+    (procedure "tk_dialog" line 119)
+    invoked from within
+"tk_dialog .srcobjdlg "Warning!" "$msg" "" 1 Overwrite Reload Ignore"
+    (object "::.main_pane.source.interior.cs.body.srcobj" method "::vsimwidgets::Srcobj::CheckModification" body line 18)
+    invoked from within
+"::.main_pane.source.interior.cs.body.srcobj CheckModification"
+    (in namespace inscope "::vsimwidgets::Srcobj" script line 1)
+    invoked from within
+"namespace inscope ::vsimwidgets::Srcobj {::.main_pane.source.interior.cs.body.srcobj CheckModification}"
+    (command bound to event)
+  <2:/home/rogerio/intelFPGA_lite/24.1std/questa_fse/linux_x86_64/tk8.6/bgerror.tcl:106: ::tkerror {window ".srcobjdlg" was deleted before its visibility changed}
+  <1:proc:331: ::tk::dialog::error::bgerror {window ".srcobjdlg" was deleted before its visibility changed}

@@ -1,0 +1,66 @@
+# ============================================================
+# Pin assignments for DE1-SoC
+# ============================================================
+
+# Clock de 50 MHz
+set_location_assignment PIN_Y2 -to clk
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
+
+# Reset (KEY0)
+set_location_assignment PIN_U17 -to reset_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset_n
+
+# Botão start (KEY1)
+set_location_assignment PIN_V16 -to start_btn
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to start_btn
+
+# Displays de 7 segmentos (HEX0)
+set_location_assignment PIN_H15 -to hex0[0]  # a
+set_location_assignment PIN_J15 -to hex0[1]  # b
+set_location_assignment PIN_H17 -to hex0[2]  # c
+set_location_assignment PIN_H16 -to hex0[3]  # d
+set_location_assignment PIN_F17 -to hex0[4]  # e
+set_location_assignment PIN_G17 -to hex0[5]  # f
+set_location_assignment PIN_G15 -to hex0[6]  # g
+
+# Display HEX1
+set_location_assignment PIN_E15 -to hex1[0]  # a
+set_location_assignment PIN_D15 -to hex1[1]  # b
+set_location_assignment PIN_C15 -to hex1[2]  # c
+set_location_assignment PIN_B15 -to hex1[3]  # d
+set_location_assignment PIN_A14 -to hex1[4]  # e
+set_location_assignment PIN_B14 -to hex1[5]  # f
+set_location_assignment PIN_A13 -to hex1[6]  # g
+
+# Display HEX2
+set_location_assignment PIN_F14 -to hex2[0]  # a
+set_location_assignment PIN_E14 -to hex2[1]  # b
+set_location_assignment PIN_D14 -to hex2[2]  # c
+set_location_assignment PIN_C14 -to hex2[3]  # d
+set_location_assignment PIN_B13 -to hex2[4]  # e
+set_location_assignment PIN_A12 -to hex2[5]  # f
+set_location_assignment PIN_D13 -to hex2[6]  # g
+
+# Display HEX3
+set_location_assignment PIN_C13 -to hex3[0]  # a
+set_location_assignment PIN_B12 -to hex3[1]  # b
+set_location_assignment PIN_A11 -to hex3[2]  # c
+set_location_assignment PIN_B11 -to hex3[3]  # d
+set_location_assignment PIN_C11 -to hex3[4]  # e
+set_location_assignment PIN_A10 -to hex3[5]  # f
+set_location_assignment PIN_B10 -to hex3[6]  # g
+
+# LEDs de status (LEDG)
+set_location_assignment PIN_AA24 -to led_ready   # LEDG0
+set_location_assignment PIN_AB24 -to led_busy    # LEDG1
+set_location_assignment PIN_AC24 -to led_done    # LEDG2
+set_location_assignment PIN_AB23 -to led_error   # LEDG3 (opcional)
+
+# Configuração de I/O padrão
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to hex0[*]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to hex1[*]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to hex2[*]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to hex3[*]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led_ready
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led_busy
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led_done
