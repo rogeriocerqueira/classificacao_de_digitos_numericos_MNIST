@@ -1,4 +1,4 @@
-# Marco 2 — Driver Linux Assembly
+# Marco 2: Driver Linux Assembly
 
 <p align="center">
   <a href="MARCO1.md">
@@ -38,10 +38,9 @@
 10. [Programa de Teste — marco2_test.c](#programa-de-teste--marco2_testc)
 11. [Integração com o Marco 1](#integração-com-o-marco-1)
 12. [Fluxo Completo de uma Inferência](#fluxo-completo-de-uma-inferência)
-13. [Softwares Utilizados](#softwares-utilizados)
-14. [Compilação na Placa](#compilação-na-placa)
-15. [Teste na Placa](#teste-na-placa)
-16. [Análise dos Resultados](#análise-dos-resultados)
+13. [Compilação na Placa](#compilação-na-placa)
+14. [Teste na Placa](#teste-na-placa)
+15. [Análise dos Resultados](#análise-dos-resultados)
 
 ---
 
@@ -368,18 +367,7 @@ Terminal SSH + HEX0 + LEDR[0]
 
 ---
 
-## Softwares Utilizados
 
-| Software                         | Versão         | Finalidade                                        |
-|----------------------------------|----------------|---------------------------------------------------|
-| Intel Quartus Prime Lite Edition | 24.1std.0.1077 | Integração HPS↔FPGA via Platform Designer (Qsys) |
-| GCC (nativo ARM)                 | armv7-a        | Compilação nativa na placa (C + Assembly)         |
-| GNU Make / build.sh              | —              | Automação do build                                |
-| minicom / PuTTY / SSH            | —              | Acesso à DE1-SoC                                  |
-| Python 3                         | 3.10+          | Geração e validação dos arquivos .mif             |
-| Git                              | —              | Controle de versão                                |
-
----
 
 ## Compilação na Placa
 
@@ -497,6 +485,9 @@ sudo ./marco2_test -d ./mif_files -n 5 -e 0
 
 ## Análise dos Resultados
 
+O driver foi validado diretamente na placa DE1-SoC com a FPGA programada com o bitstream do co-processador ELM. O teste executou 10 inferências consecutivas da mesma imagem (dígito 7) usando o programa `marco2_test`, verificando estabilidade, ausência de erros de hardware e corretude do resultado em todas as iterações.
+
+O resultado foi **PASS** em todas as execuções: o dígito 7 foi classificado corretamente em 100% das iterações, sem nenhuma instabilidade ou erro de hardware detectado. A latência média por inferência foi de aproximadamente 3,5 ms, o que corresponde a um throughput de **285,6 inferências por segundo** — valor compatível com o tempo de processamento do co-processador a 50 MHz mais o overhead de comunicação MMIO via bridge.
 
 | Métrica               | Valor                  |
 |-----------------------|------------------------|
@@ -507,3 +498,5 @@ sudo ./marco2_test -d ./mif_files -n 5 -e 0
 | Instabilidade         | 0                      |
 | Latência média        | ~3,5 ms                |
 | Throughput            | **285,6 img/s**        |
+
+O comportamento determinístico entre as 10 iterações confirma que o handshake Assembly via `dsb sy` garante a ordem correta de escrita nos PIOs, e que o polling do registrador `data_out` é estável sem condições de corrida. A conformidade dos endereços físicos foi verificada em tempo de compilação pelos `_Static_assert` presentes em `elm_platform.h`.

@@ -1,4 +1,4 @@
-# Marco 1 — Co-processador ELM
+# Marco 1: Co-processador ELM
 
 <p align="center">
   <a href="README.md">
@@ -33,7 +33,7 @@ A integração com o HPS da DE1-SoC foi realizada via **Platform Designer (Qsys)
 
 ## Contexto
 
-Paralelamente, a equipe desenvolveu uma versão própria do co-processador (`elm_accel/`), que não atingiu o comportamento esperado durante a simulação. Optou-se pelo co-processador de referência para garantir a integridade da integração HPS↔FPGA e permitir o foco no desenvolvimento do driver.
+Anteriormente desenvolvolvemos uma versão própria do co-processador (`elm_accel/`), que não atingiu o comportamento esperado durante a simulação. Optou-se pelo co-processador de referência para garantir a integridade da integração HPS↔FPGA e permitir o foco no desenvolvimento do driver em Assembly.
 
 ---
 

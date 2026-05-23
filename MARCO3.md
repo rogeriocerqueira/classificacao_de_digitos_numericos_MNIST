@@ -1,4 +1,4 @@
-# Marco 3 — Aplicação C + Validação Completa
+# Marco 3: Aplicação C + Validação Completa
 
 <p align="center">
   <a href="MARCO1.md">
