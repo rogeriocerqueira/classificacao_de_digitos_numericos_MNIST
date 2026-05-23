@@ -27,7 +27,7 @@ Classificador de dígitos MNIST embarcado em um SoC heterogêneo (ARM + FPGA), d
 | Marco | Entrega | Status |
 |-------|---------|--------|
 | [Marco 1 →](MARCO1.md) | Co-processador ELM (referência externa) | ✅ Concluído |
-| [Marco 2 →](MARCO2.md) | Driver Linux em Assembly ARM + integração MMIO | 🔄 Em progresso |
+| [Marco 2 →](MARCO2.md) | Driver Linux em Assembly ARM + integração MMIO | ✅ Concluídoo |
 | [Marco 3 →](MARCO3.md) | Aplicação C + benchmark + relatório final | ⏳ Pendente |
 
 ---
