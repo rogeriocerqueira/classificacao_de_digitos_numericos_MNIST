@@ -283,7 +283,15 @@ O projeto Quartus `elm_hps_project/soc_system.qpf` integra:
 
 ### Resultado da compilação Quartus
 
-![Resultado da compilação Quartus](docs/gitimages/general/resultado_no_quartus_24.1.png)
+![Resultado da compilação Quartus](docs/gitimages/general/plataform_design.gif)
+
+```
+Flow Status:     Successful
+Logic (ALMs):    3,347 / 32,070  (10%)
+Total registers: 4,574
+Block memory:    2,162,976 / 4,065,280  (53%)  ← pesos .mif na BRAM
+0 errors, 762 warnings
+```
 
 > O aumento de 7%→10% em ALMs e 13%→53% em BRAM confirma que o CoProcessor foi integrado com sucesso.
 
