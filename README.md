@@ -68,7 +68,7 @@ Classificador de dígitos MNIST embarcado em um SoC heterogêneo (ARM + FPGA), d
 │   ├── marco2_test.c             # Teste de estabilidade
 │   ├── run_marco2_test.sh        # Script de automação dos testes
 │   ├── Makefile
-│   └── README.md
+│   
 ├── output_files/                 # Relatórios de síntese do Quartus
 ├── platform-designer/            # Projeto Qsys — integração HPS↔FPGA
 │   └── elm_system.qsys
@@ -86,8 +86,8 @@ Classificador de dígitos MNIST embarcado em um SoC heterogêneo (ARM + FPGA), d
 | Nome               | Papel                              | GitHub |
 |--------------------|------------------------------------|--------|
 | Rogério Cerqueira  | Driver Assembly / Integração HPS   | [@rogeriocerqueira](https://github.com/rogeriocerqueira) |
-| Jones Barcellar    | Treinamento ELM / Geração de pesos | [@jonesBdev](https://github.com/jonesBdev) |
-| Ricardo Vilas Boas | Testes e validação                 | [@RickVB-FSA](https://github.com/RickVB-FSA) |
+| Jones Barcellar    | Teste na Placa / Geração de pesos | [@jonesBdev](https://github.com/jonesBdev) |
+
 
 > Projeto acadêmico — TEC 499 Sistemas Digitais · UEFS · 2026.1
 
