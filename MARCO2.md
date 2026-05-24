@@ -26,22 +26,23 @@
 
 ## Sumário
 
+## Sumário
+
 1. [Descrição](#descrição)
-2. [O Chip Cyclone V: HPS e FPGA](#o-chip-cyclone-v--hps-e-fpga)
+2. [O Chip Cyclone V: HPS e FPGA](#o-chip-cyclone-v-hps-e-fpga)
 3. [Arquitetura do Sistema](#arquitetura-do-sistema)
-4. [Os 3 PIOs: Ponte HPS↔FPGA](#os-3-pios--ponte-hpsfpga)
+4. [Os 3 PIOs: Ponte HPS e FPGA](#os-3-pios-ponte-hps-e-fpga)
 5. [Conjunto de Instruções (ISA)](#conjunto-de-instruções-isa)
 6. [Estrutura do Repositório](#estrutura-do-repositório)
-7. [Driver Assembly: elm_exec.S](#driver-assembly--elm_execs)
-8. [Driver C: elm.c](#driver-c--elmc)
-9. [Parser de Arquivos .mif: elm_mif.c](#parser-de-arquivos-mif--elm_mifc)
-10. [Programa de Teste: marco2_test.c](#programa-de-teste--marco2_testc)
+7. [Driver Assembly: elm_exec.S](#driver-assembly-elm_execs)
+8. [Driver C: elm.c](#driver-c-elmc)
+9. [Parser de Arquivos .mif: elm_mif.c](#parser-de-arquivos-mif-elm_mifc)
+10. [Programa de Teste: marco2_test.c](#programa-de-teste-marco2_testc)
 11. [Integração com o Marco 1](#integração-com-o-marco-1)
 12. [Fluxo Completo de uma Inferência](#fluxo-completo-de-uma-inferência)
 13. [Compilação na Placa](#compilação-na-placa)
 14. [Teste na Placa](#teste-na-placa)
 15. [Análise dos Resultados](#análise-dos-resultados)
-
 ---
 
 ## Descrição
@@ -56,7 +57,7 @@ A comunicação é feita via **Memory-Mapped I/O (MMIO)** através da lightweigh
 
 ---
 
-## O Chip Cyclone V — HPS e FPGA
+## O Chip Cyclone V: HPS e FPGA
 
 A DE1-SoC usa um chip Cyclone V que contém dois mundos dentro do mesmo encapsulamento:
 
@@ -90,35 +91,10 @@ A DE1-SoC usa um chip Cyclone V que contém dois mundos dentro do mesmo encapsul
 
 ## Arquitetura do Sistema
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                        DE1-SoC                               │
-│                                                              │
-│   ┌──────────────┐   Lightweight    ┌──────────────────────┐ │
-│   │   HPS ARM    │   Bridge         │        FPGA          │ │
-│   │  Cortex-A9   │  0xFF200000      │                      │ │
-│   │              │                  │  ┌────────────────┐  │ │
-│   │  elm_mif.c   │──── 0xFF200040 ─►│  │   data_in PIO  │  │ │
-│   │  (lê .mif)   │                  │  └───────┬────────┘  │ │
-│   │              │                  │          │           | │
-│   │  elm.c       │◄─── 0xFF200050 ──│  ┌───────▼────────┐  │ │
-│   │  (API C)     │                  │  │  CoProcessor   │  │ │
-│   │              │──── 0xFF200060 ─►│  │     ELM        │  │ │
-│   │  elm_exec.S  │                  │  └───────┬────────┘  │ │
-│   │  (Assembly)  │                  │          │           │ │
-│   │              │◄─── 0xFF200050 ──│  ┌───────▼────────┐  │ │
-│   └──────────────┘                  │  │  data_out PIO  │  │ │
-│                                     │  └────────────────┘  │ │
-│                                     │  ┌────────────────┐  │ │
-│                                     │  │   ctrl PIO     │  │ │
-│                                     │  └────────────────┘  │ │
-│                                     └──────────────────────┘ │
-└──────────────────────────────────────────────────────────────┘
-```
-
+![Arquitetura do Sistema](docs/gitimages/general/arquitetura_de1soc.gif)
 ---
 
-## Os 3 PIOs: Ponte HPS↔FPGA
+## Os 3 PIOs: Ponte HPS e FPGA
 
 Três PIOs foram configurados no **Platform Designer (Qsys)** e conectados ao `hps_0.h2f_lw_axi_master`:
 
@@ -307,14 +283,7 @@ O projeto Quartus `elm_hps_project/soc_system.qpf` integra:
 
 ### Resultado da compilação Quartus
 
-```
-Flow Status:     Successful
-Logic (ALMs):    3,347 / 32,070  (10%)
-Total registers: 4,574
-Block memory:    2,162,976 / 4,065,280  (53%)  ← pesos .mif na BRAM
-DSP Blocks:      10 / 87  (11%)
-0 errors, 762 warnings
-```
+![Resultado da compilação Quartus](docs/gitimages/general/resultado_no_quartus_24.1.png)
 
 > O aumento de 7%→10% em ALMs e 13%→53% em BRAM confirma que o CoProcessor foi integrado com sucesso.
 
@@ -322,48 +291,7 @@ DSP Blocks:      10 / 87  (11%)
 
 ## Fluxo Completo de uma Inferência
 
-```
-Filesystem (cartão SD)
-└── mif_files/mem_img.mif
-         │
-         │ elm_mif.c: fopen + fread + parse
-         ▼
-RAM do ARM (DDR3)
-└── uint8_t img[784]
-         │
-         │ elm.c: elm_classify() → elm_load_image()
-         │        itera 784 vezes
-         ▼
-elm_exec.S: enc_store_img(addr, pixel)
-            → instrução de 32 bits
-            str r1, [r4]    ← escreve em data_in
-            dsb sy          ← barreira de memória
-            str ENABLE, [r5]← sobe enable em ctrl
-            polling [r6]    ← espera DONE em data_out
-         │
-         │ Lightweight Bridge (0xFF200000)
-         ▼
-PIO data_in (0xFF200040)
-         │ repete 784 vezes
-         ▼
-CoProcessor ELM (FPGA)
-├── W_in × pixels + bias → tanh PWL Q4.12
-└── beta × hidden → argmax
-         │
-         ▼
-PIO data_out (0xFF200050)
-└── bits[3:0] = dígito predito
-    bit[4]    = DONE
-         │
-         │ elm_exec.S: ldr r3, [r6]
-         ▼
-RAM do ARM
-└── uint8_t pred = 7
-         │
-         ▼
-Terminal SSH + HEX0 + LEDR[0]
-└── "predição: 7   PASS"
-```
+![Fluxo de Inferência ELM](docs/gitimages/general/fluxo_inferencia_elm.gif)
 
 ---
 
