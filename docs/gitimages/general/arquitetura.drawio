@@ -1,123 +1,82 @@
-<mxfile host="app.diagrams.net" modified="2026-05-23T00:00:00.000Z" agent="Claude" version="21.0.0">
-  <diagram name="Arquitetura do Sistema" id="arquitetura-elm-fpga">
-    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="1">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-
-        <!-- Plataforma base (fundo) -->
-        <mxCell id="10" value="DE1-SoC · Intel Cyclone V · ARM Cortex-A9" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a2e;strokeColor=#4a4a8a;fontColor=#a0a0cc;fontSize=13;fontStyle=1;verticalAlign=middle;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="160" y="540" width="620" height="50" as="geometry" />
-        </mxCell>
-
-        <!-- Seta entre plataforma e Marco 1 -->
-        <mxCell id="20" style="edgeStyle=none;html=1;strokeColor=#4a4a8a;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="10" target="30">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Marco 1 — Co-processador ELM -->
-        <mxCell id="30" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0d3349;strokeColor=#1565C0;strokeWidth=2;arcSize=6;" vertex="1" parent="1">
-          <mxGeometry x="160" y="370" width="620" height="140" as="geometry" />
-        </mxCell>
-
-        <!-- Label Marco 1 (tag lateral) -->
-        <mxCell id="31" value="Marco 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565C0;strokeColor=#1565C0;fontColor=#ffffff;fontSize=11;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="800" y="390" width="80" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- Título Marco 1 -->
-        <mxCell id="32" value="Co-processador ELM (FPGA · Verilog)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#64b5f6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="160" y="378" width="620" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- Pipeline interno Marco 1 -->
-        <mxCell id="33" value="Input Layer&#xa;784 nós" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0a2744;strokeColor=#1565C0;fontColor=#90caf9;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="185" y="420" width="140" height="70" as="geometry" />
-        </mxCell>
-
-        <mxCell id="34" value="Hidden Layer&#xa;128 neurônios&#xa;(tanh)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0a2744;strokeColor=#1565C0;fontColor=#90caf9;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="380" y="420" width="140" height="70" as="geometry" />
-        </mxCell>
-
-        <mxCell id="35" value="Output Layer&#xa;10 classes&#xa;(argmax)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0a2744;strokeColor=#1565C0;fontColor=#90caf9;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="575" y="420" width="140" height="70" as="geometry" />
-        </mxCell>
-
-        <!-- Setas pipeline interno -->
-        <mxCell id="36" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="33" target="34">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="37" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="34" target="35">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Seta entre Marco 1 e Marco 2 -->
-        <mxCell id="40" style="edgeStyle=none;html=1;strokeColor=#E65100;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="30" target="50">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Marco 2 — Driver Assembly -->
-        <mxCell id="50" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d1a00;strokeColor=#E65100;strokeWidth=2;arcSize=6;" vertex="1" parent="1">
-          <mxGeometry x="160" y="230" width="620" height="110" as="geometry" />
-        </mxCell>
-
-        <!-- Label Marco 2 (tag lateral) -->
-        <mxCell id="51" value="Marco 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E65100;strokeColor=#E65100;fontColor=#ffffff;fontSize=11;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="800" y="250" width="80" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- Título Marco 2 -->
-        <mxCell id="52" value="Driver Linux · Assembly ARMv7" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#ffb74d;fontSize=14;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="160" y="238" width="620" height="28" as="geometry" />
-        </mxCell>
-
-        <!-- Blocos internos Marco 2 -->
-        <mxCell id="53" value="elm_mmio_write&#xa;elm_mmio_read" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a0d00;strokeColor=#E65100;fontColor=#ffcc80;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="185" y="275" width="170" height="50" as="geometry" />
-        </mxCell>
-
-        <mxCell id="54" value="elm_send_image&#xa;elm_poll_status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a0d00;strokeColor=#E65100;fontColor=#ffcc80;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="375" y="275" width="170" height="50" as="geometry" />
-        </mxCell>
-
-        <mxCell id="55" value="/dev/mem · mmap()&#xa;MMIO @ 0xFF200000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a0d00;strokeColor=#E65100;fontColor=#ffcc80;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="565" y="275" width="190" height="50" as="geometry" />
-        </mxCell>
-
-        <!-- Seta entre Marco 2 e Marco 3 -->
-        <mxCell id="60" style="edgeStyle=none;html=1;strokeColor=#2E7D32;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="50" target="70">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-
-        <!-- Marco 3 — Aplicação C -->
-        <mxCell id="70" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0d1f0d;strokeColor=#2E7D32;strokeWidth=2;arcSize=6;" vertex="1" parent="1">
-          <mxGeometry x="160" y="100" width="620" height="100" as="geometry" />
-        </mxCell>
-
-        <!-- Label Marco 3 (tag lateral) -->
-        <mxCell id="71" value="Marco 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2E7D32;strokeColor=#2E7D32;fontColor=#ffffff;fontSize=11;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="800" y="120" width="80" height="30" as="geometry" />
-        </mxCell>
-
-        <!-- Título Marco 3 -->
-        <mxCell id="72" value="Aplicação C · digit_classify" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#81c784;fontSize=14;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="160" y="108" width="620" height="28" as="geometry" />
-        </mxCell>
-
-        <!-- Blocos internos Marco 3 -->
-        <mxCell id="73" value="--input img.png&#xa;Classificação individual" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#071307;strokeColor=#2E7D32;fontColor=#a5d6a7;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="185" y="143" width="190" height="47" as="geometry" />
-        </mxCell>
-
-        <mxCell id="74" value="--benchmark N&#xa;Acurácia · Latência · Throughput" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#071307;strokeColor=#2E7D32;fontColor=#a5d6a7;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="390" y="143" width="210" height="47" as="geometry" />
-        </mxCell>
-
-        <mxCell id="75" value="Log CSV" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#071307;strokeColor=#2E7D32;fontColor=#a5d6a7;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="615" y="143" width="140" height="47" as="geometry" />
-        </mxCell>
-
-      </root>
-    </mxGraphModel>
-  </diagram>
+<mxfile host="65bd71144e">
+    <diagram name="Arquitetura do Sistema" id="arquitetura-elm-fpga">
+        <mxGraphModel dx="589" dy="471" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="1">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="10" value="DE1-SoC · Intel Cyclone V · ARM Cortex-A9" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;fontStyle=1;verticalAlign=middle;arcSize=8;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="540" width="620" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" style="edgeStyle=none;html=1;strokeColor=#4a4a8a;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="10" target="30" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;arcSize=6;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="370" width="620" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="Marco 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="390" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="Co-processador ELM (FPGA · Verilog)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#64b5f6;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="378" width="620" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="Input Layer&#xa;784 nós" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="185" y="420" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="Hidden Layer&#xa;128 neurônios&#xa;(tanh)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="380" y="420" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="Output Layer&#xa;10 classes&#xa;(argmax)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+                    <mxGeometry x="575" y="420" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="33" target="34" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#1565C0;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="34" target="35" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" style="edgeStyle=none;html=1;strokeColor=#E65100;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="30" target="50" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="50" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;arcSize=6;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="230" width="620" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="51" value="Marco 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="250" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="52" value="Driver Linux · Assembly ARMv7" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#ffb74d;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="238" width="620" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="53" value="elm_mmio_write&#xa;elm_mmio_read" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="185" y="275" width="170" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="54" value="elm_send_image&#xa;elm_poll_status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="375" y="275" width="170" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="55" value="/dev/mem · mmap()&#xa;MMIO @ 0xFF200000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="565" y="275" width="190" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="60" style="edgeStyle=none;html=1;strokeColor=#2E7D32;strokeWidth=2;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="50" target="70" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="70" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;arcSize=6;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="100" width="620" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="71" value="Marco 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="120" width="80" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="72" value="Aplicação C · digit_classify" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#81c784;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="160" y="108" width="620" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="73" value="--input img.png&#xa;Classificação individual" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="185" y="143" width="190" height="47" as="geometry"/>
+                </mxCell>
+                <mxCell id="74" value="--benchmark N&#xa;Acurácia · Latência · Throughput" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="390" y="143" width="210" height="47" as="geometry"/>
+                </mxCell>
+                <mxCell id="75" value="Log CSV" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="615" y="143" width="140" height="47" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
 </mxfile>

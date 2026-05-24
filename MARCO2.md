@@ -27,15 +27,15 @@
 ## Sumário
 
 1. [Descrição](#descrição)
-2. [O Chip Cyclone V — HPS e FPGA](#o-chip-cyclone-v--hps-e-fpga)
+2. [O Chip Cyclone V: HPS e FPGA](#o-chip-cyclone-v--hps-e-fpga)
 3. [Arquitetura do Sistema](#arquitetura-do-sistema)
-4. [Os 3 PIOs — Ponte HPS↔FPGA](#os-3-pios--ponte-hpsfpga)
+4. [Os 3 PIOs: Ponte HPS↔FPGA](#os-3-pios--ponte-hpsfpga)
 5. [Conjunto de Instruções (ISA)](#conjunto-de-instruções-isa)
 6. [Estrutura do Repositório](#estrutura-do-repositório)
-7. [Driver Assembly — elm_exec.S](#driver-assembly--elm_execs)
-8. [Driver C — elm.c](#driver-c--elmc)
-9. [Parser de Arquivos .mif — elm_mif.c](#parser-de-arquivos-mif--elm_mifc)
-10. [Programa de Teste — marco2_test.c](#programa-de-teste--marco2_testc)
+7. [Driver Assembly: elm_exec.S](#driver-assembly--elm_execs)
+8. [Driver C: elm.c](#driver-c--elmc)
+9. [Parser de Arquivos .mif: elm_mif.c](#parser-de-arquivos-mif--elm_mifc)
+10. [Programa de Teste: marco2_test.c](#programa-de-teste--marco2_testc)
 11. [Integração com o Marco 1](#integração-com-o-marco-1)
 12. [Fluxo Completo de uma Inferência](#fluxo-completo-de-uma-inferência)
 13. [Compilação na Placa](#compilação-na-placa)
@@ -118,7 +118,7 @@ A DE1-SoC usa um chip Cyclone V que contém dois mundos dentro do mesmo encapsul
 
 ---
 
-## Os 3 PIOs — Ponte HPS↔FPGA
+## Os 3 PIOs: Ponte HPS↔FPGA
 
 Três PIOs foram configurados no **Platform Designer (Qsys)** e conectados ao `hps_0.h2f_lw_axi_master`:
 
@@ -190,7 +190,7 @@ Marco2-driver/
 
 ---
 
-## Driver Assembly — elm_exec.S
+## Driver Assembly: elm_exec.S
 
 O arquivo `elm_exec.S` implementa **9 funções em Assembly ARM Cortex-A9** responsáveis por 100% do acesso ao hardware.
 
@@ -221,7 +221,7 @@ O arquivo `elm_exec.S` implementa **9 funções em Assembly ARM Cortex-A9** resp
 8. Espera BUSY cair        ← handshake completo
 ```
 
-## Driver C — elm.c
+## Driver C: elm.c
 
 O `elm.c` cuida apenas do que não precisa de controle de baixo nível:
 
@@ -251,7 +251,7 @@ extern uint32_t enc_start(void);
 
 ---
 
-## Parser de Arquivos .mif — elm_mif.c
+## Parser de Arquivos .mif: elm_mif.c
 
 O `elm_mif.c` lê os arquivos `.mif` do filesystem (cartão SD da placa) e converte para arrays na RAM do ARM:
 
@@ -271,7 +271,7 @@ elm_mif_load_q4_12("mif_files/mem_win.mif", &W, &sz);
 
 ---
 
-## Programa de Teste — marco2_test.c
+## Programa de Teste: marco2_test.c
 
 Cumpre o requisito do enunciado: enviar 1 imagem fixa e obter classificação correta repetidamente.
 
