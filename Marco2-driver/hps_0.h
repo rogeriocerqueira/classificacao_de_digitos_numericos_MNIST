@@ -9,6 +9,7 @@
 #define DATA_IN_HAS_OUT        1
 #define DATA_IN_HAS_TRI        0
 
+
 /* data_out: PIO de entrada, 32 bits */
 #define DATA_OUT_BASE          0x50
 #define DATA_OUT_SPAN          16
@@ -24,5 +25,11 @@
 #define CTRL_HAS_IN            0
 #define CTRL_HAS_OUT           1
 #define CTRL_HAS_TRI           0
+
+/* ── PIOs VGA — Marco 3 ──────────────────────────────── */
+#define VGA_ADDR_BASE    0x70
+#define VGA_COLOR_BASE   0x80
+#define VGA_CTRL_BASE    0x90
+#define VGA_STATUS_BASE  0xA0
 
 #endif

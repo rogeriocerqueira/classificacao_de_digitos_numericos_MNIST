@@ -97,6 +97,24 @@
          type = "int";
       }
    }
+   element intr_capturer_0.avalon_slave_0
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+      datum _tags
+      {
+         value = "";
+         type = "String";
+      }
+      datum baseAddress
+      {
+         value = "196608";
+         type = "String";
+      }
+   }
    element jtag_uart
    {
       datum _sortIndex
@@ -152,70 +170,6 @@
       datum baseAddress
       {
          value = "65536";
-         type = "String";
-      }
-   }
-   element vga_addr
-   {
-      datum _sortIndex
-      {
-         value = "10";
-         type = "int";
-      }
-   }
-   element vga_addr.s1
-   {
-      datum baseAddress
-      {
-         value = "112";
-         type = "String";
-      }
-   }
-   element vga_color
-   {
-      datum _sortIndex
-      {
-         value = "11";
-         type = "int";
-      }
-   }
-   element vga_color.s1
-   {
-      datum baseAddress
-      {
-         value = "128";
-         type = "String";
-      }
-   }
-   element vga_ctrl
-   {
-      datum _sortIndex
-      {
-         value = "12";
-         type = "int";
-      }
-   }
-   element vga_ctrl.s1
-   {
-      datum baseAddress
-      {
-         value = "144";
-         type = "String";
-      }
-   }
-   element vga_status
-   {
-      datum _sortIndex
-      {
-         value = "13";
-         type = "int";
-      }
-   }
-   element vga_status.s1
-   {
-      datum baseAddress
-      {
-         value = "160";
          type = "String";
       }
    }
@@ -285,26 +239,6 @@
  <interface name="hps_0_hps_io" internal="hps_0.hps_io" type="conduit" dir="end" />
  <interface name="memory" internal="hps_0.memory" type="conduit" dir="end" />
  <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
- <interface
-   name="vga_addr_external_connection"
-   internal="vga_addr.external_connection"
-   type="conduit"
-   dir="end" />
- <interface
-   name="vga_color_external_connection"
-   internal="vga_color.external_connection"
-   type="conduit"
-   dir="end" />
- <interface
-   name="vga_ctrl_external_connection"
-   internal="vga_ctrl.external_connection"
-   type="conduit"
-   dir="end" />
- <interface
-   name="vga_status_external_connection"
-   internal="vga_status.external_connection"
-   type="conduit"
-   dir="end" />
  <module name="clk_0" kind="clock_source" version="24.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -970,62 +904,6 @@
    enabled="1">
   <parameter name="id" value="-1395322110" />
  </module>
- <module name="vga_addr" kind="altera_avalon_pio" version="24.1" enabled="1">
-  <parameter name="bitClearingEdgeCapReg" value="false" />
-  <parameter name="bitModifyingOutReg" value="false" />
-  <parameter name="captureEdge" value="false" />
-  <parameter name="clockRate" value="50000000" />
-  <parameter name="direction" value="Output" />
-  <parameter name="edgeType" value="RISING" />
-  <parameter name="generateIRQ" value="false" />
-  <parameter name="irqType" value="LEVEL" />
-  <parameter name="resetValue" value="0" />
-  <parameter name="simDoTestBenchWiring" value="false" />
-  <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="10" />
- </module>
- <module name="vga_color" kind="altera_avalon_pio" version="24.1" enabled="1">
-  <parameter name="bitClearingEdgeCapReg" value="false" />
-  <parameter name="bitModifyingOutReg" value="false" />
-  <parameter name="captureEdge" value="false" />
-  <parameter name="clockRate" value="50000000" />
-  <parameter name="direction" value="Output" />
-  <parameter name="edgeType" value="RISING" />
-  <parameter name="generateIRQ" value="false" />
-  <parameter name="irqType" value="LEVEL" />
-  <parameter name="resetValue" value="0" />
-  <parameter name="simDoTestBenchWiring" value="false" />
-  <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="9" />
- </module>
- <module name="vga_ctrl" kind="altera_avalon_pio" version="24.1" enabled="1">
-  <parameter name="bitClearingEdgeCapReg" value="false" />
-  <parameter name="bitModifyingOutReg" value="false" />
-  <parameter name="captureEdge" value="false" />
-  <parameter name="clockRate" value="50000000" />
-  <parameter name="direction" value="Output" />
-  <parameter name="edgeType" value="RISING" />
-  <parameter name="generateIRQ" value="false" />
-  <parameter name="irqType" value="LEVEL" />
-  <parameter name="resetValue" value="0" />
-  <parameter name="simDoTestBenchWiring" value="false" />
-  <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="3" />
- </module>
- <module name="vga_status" kind="altera_avalon_pio" version="24.1" enabled="1">
-  <parameter name="bitClearingEdgeCapReg" value="false" />
-  <parameter name="bitModifyingOutReg" value="false" />
-  <parameter name="captureEdge" value="false" />
-  <parameter name="clockRate" value="50000000" />
-  <parameter name="direction" value="Input" />
-  <parameter name="edgeType" value="RISING" />
-  <parameter name="generateIRQ" value="false" />
-  <parameter name="irqType" value="LEVEL" />
-  <parameter name="resetValue" value="0" />
-  <parameter name="simDoTestBenchWiring" value="false" />
-  <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="1" />
- </module>
  <connection
    kind="avalon"
    version="24.1"
@@ -1057,15 +935,6 @@
    kind="avalon"
    version="24.1"
    start="hps_0.h2f_lw_axi_master"
-   end="data_in.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0040" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="24.1"
-   start="hps_0.h2f_lw_axi_master"
    end="data_out.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0050" />
@@ -1084,36 +953,9 @@
    kind="avalon"
    version="24.1"
    start="hps_0.h2f_lw_axi_master"
-   end="vga_color.s1">
+   end="data_in.s1">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0080" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="24.1"
-   start="hps_0.h2f_lw_axi_master"
-   end="vga_ctrl.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0090" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="24.1"
-   start="hps_0.h2f_lw_axi_master"
-   end="vga_status.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x00a0" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="24.1"
-   start="hps_0.h2f_lw_axi_master"
-   end="vga_addr.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0070" />
+  <parameter name="baseAddress" value="0x0040" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1167,10 +1009,6 @@
  <connection kind="clock" version="24.1" start="clk_0.clk" end="data_in.clk" />
  <connection kind="clock" version="24.1" start="clk_0.clk" end="data_out.clk" />
  <connection kind="clock" version="24.1" start="clk_0.clk" end="ctrl.clk" />
- <connection kind="clock" version="24.1" start="clk_0.clk" end="vga_color.clk" />
- <connection kind="clock" version="24.1" start="clk_0.clk" end="vga_ctrl.clk" />
- <connection kind="clock" version="24.1" start="clk_0.clk" end="vga_status.clk" />
- <connection kind="clock" version="24.1" start="clk_0.clk" end="vga_addr.clk" />
  <connection
    kind="clock"
    version="24.1"
@@ -1229,26 +1067,6 @@
    start="clk_0.clk_reset"
    end="data_out.reset" />
  <connection kind="reset" version="24.1" start="clk_0.clk_reset" end="ctrl.reset" />
- <connection
-   kind="reset"
-   version="24.1"
-   start="clk_0.clk_reset"
-   end="vga_addr.reset" />
- <connection
-   kind="reset"
-   version="24.1"
-   start="clk_0.clk_reset"
-   end="vga_color.reset" />
- <connection
-   kind="reset"
-   version="24.1"
-   start="clk_0.clk_reset"
-   end="vga_ctrl.reset" />
- <connection
-   kind="reset"
-   version="24.1"
-   start="clk_0.clk_reset"
-   end="vga_status.reset" />
  <connection
    kind="reset"
    version="24.1"

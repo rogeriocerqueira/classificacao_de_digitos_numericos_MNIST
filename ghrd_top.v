@@ -184,93 +184,14 @@ assign stm_hw_events = {{3{1'b0}}, SW, fpga_led_internal, fpga_debounced_buttons
 // =======================================================
 //  Fios dos PIOs — Marco 2
 // =======================================================
-// data_in_w  : HPS escreve, CoProcessor lê
-// data_out_w : CoProcessor escreve, HPS lê (mesmo fio dos dois lados)
-// ctrl_w     : HPS escreve, CoProcessor lê (3 bits: enable, clr, rst)
-wire [31:0] data_in_w;
-wire [31:0] data_out_w;
-wire [2:0]  ctrl_w;
+wire [31:0] data_in_w;       // HPS → CoProcessor
+wire [31:0] data_out_w;      // CoProcessor → HPS
+wire [31:0] data_out_nc;     // export do Qsys (descartado)
+wire [2:0]  ctrl_w;          // HPS → CoProcessor
 
 wire elm_enable = ctrl_w[0];
 wire elm_clr    = ctrl_w[1];
-
-// Reset combinado: software (ctrl_w[2]) OU reset do sistema (hps_fpga_reset_n
-// é ativo-baixo, então invertemos). Assim, quando o HPS reseta a bridge,
-// o coprocessador também é forçado para IDLE — não fica preso em busy.
-wire elm_rst = ctrl_w[2] | ~hps_fpga_reset_n;
-
-// =======================================================
-//  Fios dos PIOs — Marco 2
-// =======================================================
-
-// ── VGA ────────────────────────────────────────────────
-wire        clk_25;
-wire [9:0]  vga_addr_pio;
-wire [8:0]  vga_color_pio;
-wire [2:0]  vga_ctrl_pio;
-wire        vga_fb_done;
-wire [9:0]  next_x, next_y;
-wire [8:0]  fb_pixel_out;
-wire [8:0]  color_to_vga;
-
-// Região da imagem 28×28 centralizada em 640×480
-localparam [9:0] IMG_OX = 10'd306;
-localparam [9:0] IMG_OY = 10'd226;
-
-wire in_region =
-    (next_x >= IMG_OX) && (next_x < IMG_OX + 10'd28) &&
-    (next_y >= IMG_OY) && (next_y < IMG_OY + 10'd28);
-
-wire [9:0] fb_rd_addr =
-    (next_y - IMG_OY) * 10'd28 + (next_x - IMG_OX);
-
-assign color_to_vga = in_region ? fb_pixel_out : 9'd0;
-
-
-
-pll01 pll_vga (
-    .refclk   (CLOCK_50),
-    .rst      (1'b0),
-    .outclk_0 (clk_25),
-    .locked   ()
-);
-
-// ── Framebuffer VGA (lsu_controller 784×9b) ─────────────
-lsu_controller #(
-    .DATA_WIDTH    (9),
-    .MEM_SIZE      (784),
-    .CYCLES_PER_OP (3),
-    .DEVICE_FAMILY ("Cyclone V"),
-    .RAM_TYPE      ("M10K"),
-    .INIT_FILE     ("")
-) vga_fb (
-    .clk        (CLOCK_50),
-    .rst        (vga_ctrl_pio[2]),
-    .enable     (vga_ctrl_pio[0]),
-    .write_en   (vga_ctrl_pio[1]),
-    .addr_write (vga_addr_pio),
-    .data_in    (vga_color_pio),
-    .done       (vga_fb_done),
-    .addr_read  (fb_rd_addr),
-    .data_out   (fb_pixel_out)
-);
-
-// ── VGA driver ──────────────────────────────────────────
-vga_driver vga_inst (
-    .clock    (clk_25),
-    .reset    (vga_ctrl_pio[2]),
-    .color_in (color_to_vga),
-    .next_x   (next_x),
-    .next_y   (next_y),
-    .hsync    (VGA_HS),
-    .vsync    (VGA_VS),
-    .red      (VGA_R),
-    .green    (VGA_G),
-    .blue     (VGA_B),
-    .sync     (VGA_SYNC_N),
-    .clk      (VGA_CLK),
-    .blank    (VGA_BLANK_N)
-);
+wire elm_rst    = ctrl_w[2];
 
 // =======================================================
 //  Sistema Qsys — soc_system
@@ -360,15 +281,8 @@ soc_system u0 (
 
     // PIOs do Marco 2
     .data_in_external_connection_export    ( data_in_w           ),
-    .data_out_external_connection_export   ( data_out_w          ),  // <-- agora vem direto do CoProcessor
-    .ctrl_external_connection_export       ( ctrl_w              ),
-	 
-	 
-	  // PIOs VGA novos
-    .vga_addr_external_connection_export   (vga_addr_pio),
-    .vga_color_external_connection_export  (vga_color_pio),
-    .vga_ctrl_external_connection_export   (vga_ctrl_pio),
-    .vga_status_external_connection_export (vga_fb_done)
+    .data_out_external_connection_export   ( data_out_nc         ),
+    .ctrl_external_connection_export       ( ctrl_w              )
 );
 
 // =======================================================
@@ -412,31 +326,24 @@ defparam pulse_debug_reset.IGNORE_RST_WHILE_BUSY = 1;
 // =======================================================
 //  CoProcessor ELM — caixa preta do Marco 1
 // =======================================================
-// Atenção: data_in_w e data_out_w são os MESMOS fios que entram/saem
-// dos PIOs do Qsys acima. Assim o HPS escreve em data_in e lê de
-// data_out de fato.
 CoProcessor elm_inst (
     .clk           ( CLOCK_50   ),
     .data_in       ( data_in_w  ),
     .enable        ( elm_enable ),
     .clr_operation ( elm_clr    ),
-    .rst           ( elm_rst    ),   // OR de software + reset de sistema
+    .rst           ( elm_rst    ),
     .data_out      ( data_out_w )
 );
 
 // =======================================================
-//  Saídas visuais (auxiliares de debug)
+//  Saídas visuais
 // =======================================================
-// Mostra o dígito predito no HEX0 só quando DONE está alto. Antes
-// disso o display mostra apagado/neutro (depende do display_resultado).
-wire elm_done = data_out_w[4];
-
 display_resultado visor_elm (
-    .resultado_bin ( elm_done ? data_out_w[3:0] : 4'hF ),
-    .hex_out       ( HEX0 )
+    .resultado_bin ( data_out_w[3:0] ),
+    .hex_out       ( HEX0            )
 );
 
-assign HEX1 = 7'h7F;  // apagado
+assign HEX1 = 7'h7F;
 assign HEX2 = 7'h7F;
 assign HEX3 = 7'h7F;
 assign HEX4 = 7'h7F;
