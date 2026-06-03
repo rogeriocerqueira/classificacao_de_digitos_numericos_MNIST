@@ -26,7 +26,6 @@
 *.sta.rpt
 
 # Bitstreams (grandes demais para o repositório)
-*.sof
 *.pof
 *.rbf
 
