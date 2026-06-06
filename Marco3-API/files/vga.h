@@ -37,8 +37,9 @@
 /* ── Resolução da tela e posição da imagem ─────────────── */
 #define VGA_SCREEN_W   640
 #define VGA_SCREEN_H   480
-#define VGA_IMG_OFF_X  ((VGA_SCREEN_W - IMG_W) / 2)   /* 306 */
-#define VGA_IMG_OFF_Y  ((VGA_SCREEN_H - IMG_H) / 2)   /* 226 */
+#define VGA_IMG_OFF_X  180   /* (640-280)/2 — escala 10x */
+#define VGA_IMG_OFF_Y  100   /* (480-280)/2 — escala 10x */
+#define VGA_IMG_SCALE  10   /* cada pixel do canvas = 10x10 na tela */
 
 /* ── Struct do driver VGA ───────────────────────────────── */
 typedef struct {

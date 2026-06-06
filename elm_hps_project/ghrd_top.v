@@ -214,24 +214,30 @@ wire [8:0]  fb_pixel_out;
 wire [8:0]  color_to_vga;
 
 // Região da imagem 28×28 centralizada em 640×480
-localparam [9:0] IMG_OX = 10'd306;
-localparam [9:0] IMG_OY = 10'd226;
+localparam [9:0] IMG_OX = 10'd180;
+localparam [9:0] IMG_OY = 10'd100;
 
 wire in_region =
-    (next_x >= IMG_OX) && (next_x < IMG_OX + 10'd28) &&
-    (next_y >= IMG_OY) && (next_y < IMG_OY + 10'd28);
+    (next_x >= IMG_OX) && (next_x < IMG_OX + 10'd280) &&
+    (next_y >= IMG_OY) && (next_y < IMG_OY + 10'd280);
 
-wire [9:0] fb_rd_addr =
-    (next_y - IMG_OY) * 10'd28 + (next_x - IMG_OX);
+// fb_rd_addr calculado abaixo
+wire [9:0] dx = next_x - IMG_OX;
+wire [9:0] dy = next_y - IMG_OY;
+wire [9:0] cx = (dx >> 4) + (dx >> 5) + (dx >> 8);
+wire [9:0] cy = (dy >> 4) + (dy >> 5) + (dy >> 8);
+wire [9:0] fb_rd_addr = cy * 10'd28 + cx;
 
-assign color_to_vga = in_region ? fb_pixel_out : 9'd0;
+assign color_to_vga = in_region ? fb_pixel_out : 9'b000_000_11;
 
 
 
+// DEPOIS — correto, 25 MHz
 pll01 pll_vga (
     .refclk   (CLOCK_50),
     .rst      (1'b0),
-    .outclk_0 (clk_25),
+    .outclk_0 (),          // 100 MHz — não usado
+    .outclk_1 (clk_25),   // 25 MHz — correto!
     .locked   ()
 );
 
@@ -242,7 +248,7 @@ lsu_controller #(
     .CYCLES_PER_OP (3),
     .DEVICE_FAMILY ("Cyclone V"),
     .RAM_TYPE      ("M10K"),
-    .INIT_FILE     ("")
+    .INIT_FILE     ("vga_zeros.mif")
 ) vga_fb (
     .clk        (CLOCK_50),
     .rst        (vga_ctrl_pio[2]),

@@ -125,13 +125,13 @@ void mouse_canvas_xy(int vga_x, int vga_y, int *cx, int *cy)
 {
     /*
      * A imagem 28×28 está centrada em 640×480:
-     *   x: [VGA_IMG_OFF_X .. VGA_IMG_OFF_X+28)
-     *   y: [VGA_IMG_OFF_Y .. VGA_IMG_OFF_Y+28)
+     * x: [VGA_IMG_OFF_X .. VGA_IMG_OFF_X+280) — escala 10x
+     * y: [VGA_IMG_OFF_Y .. VGA_IMG_OFF_Y+280) — escala 10x
      *
      * Fora da região → clamp para a borda do canvas.
      */
-    int px = vga_x - VGA_IMG_OFF_X;
-    int py = vga_y - VGA_IMG_OFF_Y;
+    int px = (vga_x - VGA_IMG_OFF_X) / VGA_IMG_SCALE;
+    int py = (vga_y - VGA_IMG_OFF_Y) / VGA_IMG_SCALE;
     *cx = clamp(px, 0, CANVAS_W - 1);
     *cy = clamp(py, 0, CANVAS_H - 1);
 }
