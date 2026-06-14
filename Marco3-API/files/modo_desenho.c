@@ -18,7 +18,8 @@
 #include "app.h"
 #include "vga.h"
 #include "mouse.h"
-#include "../Marco2-driver/elm.h"
+#include "elm.h"        // em vez de "../../../Marco2-driver/elm.h"
+
 
 int modo_desenho(elm_t *elm, vga_t *vga, const app_config_t *cfg)
 {

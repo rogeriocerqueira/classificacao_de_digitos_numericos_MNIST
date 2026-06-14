@@ -17,7 +17,8 @@
 #include <getopt.h>
 #include "app.h"
 #include "vga.h"
-#include "../Marco2-driver/elm.h"
+#include "elm.h"        
+#include "elm_mif.h"   
 
 /* ── Protótipos dos modos ──────────────────────────────── */
 int modo_arquivo   (elm_t *, vga_t *, const app_config_t *);

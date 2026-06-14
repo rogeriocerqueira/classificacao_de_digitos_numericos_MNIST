@@ -2,15 +2,15 @@
 #
 # build.sh — compila o Marco 3 nativamente na placa DE1-SoC.
 #
-# Depende do Marco 2 em ../Marco2-driver/ (ou ajuste MARCO2_DIR).
+# Depende do Marco 2 em ../../Marco2-driver/ (ajuste MARCO2_DIR se necessário).
 #
 # Uso:
-#   chmod +x build.sh
-#   ./build.sh
+#   chmod +x build_marco3.sh
+#   ./build_marco3.sh
 
 set -e
 
-MARCO2_DIR="../Marco2-driver"
+MARCO2_DIR="../../Marco2-driver"
 FLAGS="-O2 -Wall -Wextra -std=gnu99 -march=armv7-a -mfpu=neon -mfloat-abi=hard"
 INC="-I. -I${MARCO2_DIR}"
 
@@ -18,8 +18,14 @@ echo "=== [Marco 3] Compilando ==="
 
 # ── Objetos do Marco 2 (reutiliza a libelm.a se já existir) ──
 if [ ! -f "${MARCO2_DIR}/libelm.a" ]; then
-    echo "  Compilando Marco 2..."
-    (cd ${MARCO2_DIR} && ./build.sh)
+    if [ -f "${MARCO2_DIR}/build.sh" ]; then
+        echo "  Compilando Marco 2..."
+        (cd ${MARCO2_DIR} && ./build.sh)
+    else
+        echo "ERRO: libelm.a nao encontrada e build.sh do Marco 2 ausente."
+        echo "Compile o Marco 2 manualmente antes de continuar."
+        exit 1
+    fi
 fi
 
 # ── Objetos do Marco 3 ────────────────────────────────────────
@@ -52,6 +58,6 @@ gcc $FLAGS \
 echo ""
 echo "=== Pronto! ==="
 echo ""
-echo "  sudo ./app --modo arquivo  --img ../Marco2-driver/mif_files/imagem_7.mif -e 7"
+echo "  sudo ./app --modo arquivo  --img ../../Marco2-driver/image_files/imagem_7.mif -e 7"
 echo "  sudo ./app --modo desenho"
-echo "  sudo ./app --modo benchmark --dir ../Marco2-driver/mif_files --n 100 --log resultado.csv"
+echo "  sudo ./app --modo benchmark --dir ../../Marco2-driver/image_files --n 100 --log resultado.csv"

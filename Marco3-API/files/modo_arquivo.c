@@ -1,4 +1,3 @@
-/*
  * modo_arquivo.c — Modo 1: inferência a partir de arquivo .mif.
  *
  * Fluxo:
@@ -14,8 +13,8 @@
 #include <string.h>
 #include "app.h"
 #include "vga.h"
-#include "../Marco2-driver/elm.h"
-#include "../Marco2-driver/elm_mif.h"
+#include "elm.h"        // em vez de "../../../Marco2-driver/elm.h"
+#include "elm_mif.h"    // em vez de "../../../Marco2-driver/elm_mif.h"
 
 int modo_arquivo(elm_t *elm, vga_t *vga, const app_config_t *cfg)
 {

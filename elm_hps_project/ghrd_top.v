@@ -168,6 +168,24 @@ module ghrd_top(
 );
 
 // =======================================================
+//  Saídas não utilizadas — evita inferência indefinida
+// =======================================================
+assign ADC_CONVST       = 1'b0;
+assign ADC_DIN          = 1'b0;
+assign ADC_SCLK         = 1'b0;
+assign AUD_DACDAT       = 1'b0;
+assign AUD_XCK          = 1'b0;
+assign FAN_CTRL         = 1'b1;
+assign FPGA_I2C_SCLK    = 1'b1;
+assign IRDA_TXD         = 1'b0;
+assign UART_TX          = 1'b1;
+assign UART_RTS         = 1'b1;
+assign QSPI_FLASH_SCLK  = 1'b0;
+assign QSPI_FLASH_CE_n  = 1'b1;
+assign RISCV_JTAG_TDO   = 1'b0;
+assign TD_RESET_N       = 1'b1;
+
+// =======================================================
 //  Fios internos originais
 // =======================================================
 wire [3:0]  fpga_debounced_buttons;
@@ -184,9 +202,6 @@ assign stm_hw_events = {{3{1'b0}}, SW, fpga_led_internal, fpga_debounced_buttons
 // =======================================================
 //  Fios dos PIOs — Marco 2
 // =======================================================
-// data_in_w  : HPS escreve, CoProcessor lê
-// data_out_w : CoProcessor escreve, HPS lê (mesmo fio dos dois lados)
-// ctrl_w     : HPS escreve, CoProcessor lê (3 bits: enable, clr, rst)
 wire [31:0] data_in_w;
 wire [31:0] data_out_w;
 wire [2:0]  ctrl_w;
@@ -194,16 +209,12 @@ wire [2:0]  ctrl_w;
 wire elm_enable = ctrl_w[0];
 wire elm_clr    = ctrl_w[1];
 
-// Reset combinado: software (ctrl_w[2]) OU reset do sistema (hps_fpga_reset_n
-// é ativo-baixo, então invertemos). Assim, quando o HPS reseta a bridge,
-// o coprocessador também é forçado para IDLE — não fica preso em busy.
+// Reset combinado: software (ctrl_w[2]) OU reset do sistema
 wire elm_rst = ctrl_w[2] | ~hps_fpga_reset_n;
 
 // =======================================================
-//  Fios dos PIOs — Marco 2
+//  Fios dos PIOs — VGA
 // =======================================================
-
-// ── VGA ────────────────────────────────────────────────
 wire        clk_25;
 wire [9:0]  vga_addr_pio;
 wire [8:0]  vga_color_pio;
@@ -213,7 +224,7 @@ wire [9:0]  next_x, next_y;
 wire [8:0]  fb_pixel_out;
 wire [8:0]  color_to_vga;
 
-// Região da imagem 28×28 centralizada em 640×480
+// Região da imagem 28×28 centralizada em 640×480 (escala 10×)
 localparam [9:0] IMG_OX = 10'd180;
 localparam [9:0] IMG_OY = 10'd100;
 
@@ -221,27 +232,30 @@ wire in_region =
     (next_x >= IMG_OX) && (next_x < IMG_OX + 10'd280) &&
     (next_y >= IMG_OY) && (next_y < IMG_OY + 10'd280);
 
-// fb_rd_addr calculado abaixo
+// Divisão exata por 10 — converte pixel VGA → canvas 28×28
 wire [9:0] dx = next_x - IMG_OX;
 wire [9:0] dy = next_y - IMG_OY;
-wire [9:0] cx = (dx >> 4) + (dx >> 5) + (dx >> 8);
-wire [9:0] cy = (dy >> 4) + (dy >> 5) + (dy >> 8);
+wire [9:0] cx = dx / 10;
+wire [9:0] cy = dy / 10;
 wire [9:0] fb_rd_addr = cy * 10'd28 + cx;
 
-assign color_to_vga = in_region ? fb_pixel_out : 9'b000_000_11;
+// Fundo preto fora da região da imagem
+assign color_to_vga = in_region ? fb_pixel_out : 9'b000_000_00;
 
-
-
-// DEPOIS — correto, 25 MHz
+// =======================================================
+//  PLL — gera 25 MHz para o VGA
+// =======================================================
 pll01 pll_vga (
     .refclk   (CLOCK_50),
     .rst      (1'b0),
     .outclk_0 (),          // 100 MHz — não usado
-    .outclk_1 (clk_25),   // 25 MHz — correto!
+    .outclk_1 (clk_25),   // 25 MHz
     .locked   ()
 );
 
-// ── Framebuffer VGA (lsu_controller 784×9b) ─────────────
+// =======================================================
+//  Framebuffer VGA (lsu_controller 784×9b)
+// =======================================================
 lsu_controller #(
     .DATA_WIDTH    (9),
     .MEM_SIZE      (784),
@@ -261,7 +275,9 @@ lsu_controller #(
     .data_out   (fb_pixel_out)
 );
 
-// ── VGA driver ──────────────────────────────────────────
+// =======================================================
+//  VGA driver
+// =======================================================
 vga_driver vga_inst (
     .clock    (clk_25),
     .reset    (vga_ctrl_pio[2]),
@@ -366,15 +382,14 @@ soc_system u0 (
 
     // PIOs do Marco 2
     .data_in_external_connection_export    ( data_in_w           ),
-    .data_out_external_connection_export   ( data_out_w          ),  // <-- agora vem direto do CoProcessor
+    .data_out_external_connection_export   ( data_out_w          ),
     .ctrl_external_connection_export       ( ctrl_w              ),
-	 
-	 
-	  // PIOs VGA novos
-    .vga_addr_external_connection_export   (vga_addr_pio),
-    .vga_color_external_connection_export  (vga_color_pio),
-    .vga_ctrl_external_connection_export   (vga_ctrl_pio),
-    .vga_status_external_connection_export (vga_fb_done)
+
+    // PIOs VGA
+    .vga_addr_external_connection_export   ( vga_addr_pio        ),
+    .vga_color_external_connection_export  ( vga_color_pio       ),
+    .vga_ctrl_external_connection_export   ( vga_ctrl_pio        ),
+    .vga_status_external_connection_export ( vga_fb_done         )
 );
 
 // =======================================================
@@ -416,25 +431,20 @@ defparam pulse_debug_reset.EDGE_TYPE = 1;
 defparam pulse_debug_reset.IGNORE_RST_WHILE_BUSY = 1;
 
 // =======================================================
-//  CoProcessor ELM — caixa preta do Marco 1
+//  CoProcessor ELM — Marco 1
 // =======================================================
-// Atenção: data_in_w e data_out_w são os MESMOS fios que entram/saem
-// dos PIOs do Qsys acima. Assim o HPS escreve em data_in e lê de
-// data_out de fato.
 CoProcessor elm_inst (
     .clk           ( CLOCK_50   ),
     .data_in       ( data_in_w  ),
     .enable        ( elm_enable ),
     .clr_operation ( elm_clr    ),
-    .rst           ( elm_rst    ),   // OR de software + reset de sistema
+    .rst           ( elm_rst    ),
     .data_out      ( data_out_w )
 );
 
 // =======================================================
-//  Saídas visuais (auxiliares de debug)
+//  Saídas visuais (debug)
 // =======================================================
-// Mostra o dígito predito no HEX0 só quando DONE está alto. Antes
-// disso o display mostra apagado/neutro (depende do display_resultado).
 wire elm_done = data_out_w[4];
 
 display_resultado visor_elm (
@@ -442,7 +452,7 @@ display_resultado visor_elm (
     .hex_out       ( HEX0 )
 );
 
-assign HEX1 = 7'h7F;  // apagado
+assign HEX1 = 7'h7F;
 assign HEX2 = 7'h7F;
 assign HEX3 = 7'h7F;
 assign HEX4 = 7'h7F;

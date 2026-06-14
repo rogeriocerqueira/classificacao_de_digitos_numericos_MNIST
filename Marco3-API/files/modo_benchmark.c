@@ -17,8 +17,8 @@
 #include <time.h>
 #include "app.h"
 #include "vga.h"
-#include "../Marco2-driver/elm.h"
-#include "../Marco2-driver/elm_mif.h"
+#include "elm.h"        // em vez de "../../../Marco2-driver/elm.h"
+#include "elm_mif.h"    // em vez de "../../../Marco2-driver/elm_mif.h"
 
 /* ── Helper: diferença de tempo em ms ─────────────────── */
 static double ts_diff_ms(const struct timespec *a, const struct timespec *b)
