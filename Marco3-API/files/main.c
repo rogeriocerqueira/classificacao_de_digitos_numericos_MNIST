@@ -99,24 +99,7 @@ static int elm_init_weights(elm_t *elm)
         return APP_ERR;
     }
 
-    /*
-     * mem_beta.mif esta em layout hidden-row-major: addr = h*10 + o
-     * (ver comentario em elm.c / second_layer.v).
-     * elm_load_betas espera beta[o][h] (formato matematico y = beta . h)
-     * e ele mesmo transpoe para hidden-major na escrita do BRAM.
-     * Por isso fazemos a transposicao inversa antes de chamar:
-     *   beta_oh[o][h] = flat_beta[h*10 + o]
-     */
-    {
-        static int16_t beta_oh[ELM_OUTPUT_NEURONS][ELM_HIDDEN_NEURONS];
-        int h, o;
-        for (h = 0; h < ELM_HIDDEN_NEURONS; h++) {
-            for (o = 0; o < ELM_OUTPUT_NEURONS; o++) {
-                beta_oh[o][h] = beta[h * ELM_OUTPUT_NEURONS + o];
-            }
-        }
-        rc = elm_load_betas(elm, beta_oh);
-    }
+    rc = elm_load_betas(elm, (const int16_t (*)[ELM_HIDDEN_NEURONS])beta);
     if (rc != ELM_OK) {
         fprintf(stderr, "Erro: elm_load_betas falhou (rc=%d)\n", rc);
         free(W); free(bias); free(beta);
@@ -251,22 +234,24 @@ static int parse_args(int argc, char **argv, app_config_t *cfg)
     cfg->img_path   = NULL;
     cfg->mif_dir    = DEFAULT_IMG_DIR;
     cfg->n_imagens  = 100;
+    cfg->offset     = 0;
     cfg->classe_esp = -1;
     cfg->log_path   = "benchmark.csv";
 
     static struct option opts[] = {
-        {"modo",  required_argument, 0, 'm'},
-        {"img",   required_argument, 0, 'i'},
-        {"dir",   required_argument, 0, 'd'},
-        {"n",     required_argument, 0, 'n'},
-        {"e",     required_argument, 0, 'e'},
-        {"log",   required_argument, 0, 'l'},
-        {"help",  no_argument,       0, 'h'},
+        {"modo",   required_argument, 0, 'm'},
+        {"img",    required_argument, 0, 'i'},
+        {"dir",    required_argument, 0, 'd'},
+        {"n",      required_argument, 0, 'n'},
+        {"offset", required_argument, 0, 'o'},
+        {"e",      required_argument, 0, 'e'},
+        {"log",    required_argument, 0, 'l'},
+        {"help",   no_argument,       0, 'h'},
         {0, 0, 0, 0}
     };
 
     int opt;
-    while ((opt = getopt_long(argc, argv, "m:i:d:n:e:l:h", opts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "m:i:d:n:o:e:l:h", opts, NULL)) != -1) {
         switch (opt) {
         case 'm':
             if      (strcmp(optarg, "arquivo")   == 0) cfg->modo = MODO_ARQUIVO;
@@ -280,6 +265,7 @@ static int parse_args(int argc, char **argv, app_config_t *cfg)
         case 'i': cfg->img_path   = optarg;       break;
         case 'd': cfg->mif_dir    = optarg;       break;
         case 'n': cfg->n_imagens  = atoi(optarg); break;
+        case 'o': cfg->offset     = atoi(optarg); break;
         case 'e': cfg->classe_esp = atoi(optarg); break;
         case 'l': cfg->log_path   = optarg;       break;
         case 'h': usage(argv[0]); return APP_ERR;
@@ -287,7 +273,7 @@ static int parse_args(int argc, char **argv, app_config_t *cfg)
         }
     }
 
-    /* Validaes */
+    /* Validacoes */
     if (cfg->modo == MODO_ARQUIVO && !cfg->img_path) {
         fprintf(stderr, "Erro: --img obrigatorio no modo arquivo.\n");
         return APP_ERR;

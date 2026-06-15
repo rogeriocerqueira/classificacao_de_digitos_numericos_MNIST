@@ -16,17 +16,15 @@ CROSS_COMPILE ?=
 CC      = $(CROSS_COMPILE)gcc
 AR      = $(CROSS_COMPILE)ar
 
-# Flags comuns a C e ASM (.S é pré-processado pelo gcc).
+# Flags comuns a C e ASM (.S e pre-processado pelo gcc).
 COMMON_FLAGS = -march=armv7-a -mfpu=neon -mfloat-abi=hard
-CFLAGS  = -O2 -Wall -Wextra -std=c11 $(COMMON_FLAGS) -I.
+CFLAGS  = -O2 -Wall -Wextra -std=gnu99 $(COMMON_FLAGS) -I.
 ASFLAGS = $(COMMON_FLAGS) -I.
 
 LIB_OBJS  = elm.o elm_exec.o elm_mif.o
 LIB       = libelm.a
-
 APP_OBJS  = example_main.o
 APP       = elm_test
-
 TEST_OBJS = marco2_test.o
 TEST      = marco2_test
 
@@ -41,16 +39,16 @@ $(APP): $(APP_OBJS) $(LIB)
 	$(CC) $(CFLAGS) -o $@ $(APP_OBJS) -L. -lelm -lm
 
 $(TEST): $(TEST_OBJS) $(LIB)
-	$(CC) $(CFLAGS) -o $@ $(TEST_OBJS) -L. -lelm -lm
+	$(CC) $(CFLAGS) -o $@ $(TEST_OBJS) -L. -lelm -lm -lrt
 
-# Regras de compilação
+# Regras de compilacao
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.S
 	$(CC) $(ASFLAGS) -c $< -o $@
 
-# Dependências de cabeçalhos
+# Dependencias de cabecalhos
 elm.o:          elm.c elm.h elm_proto.h elm_platform.h hps_0.h
 elm_exec.o:     elm_exec.S elm_proto.h
 elm_mif.o:      elm_mif.c elm_mif.h
