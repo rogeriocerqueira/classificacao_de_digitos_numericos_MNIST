@@ -177,25 +177,73 @@ static int menu_digito(void)
 static int menu_benchmark_n(void)
 {
     int n = -1;
-    while (n < 1) {
-        printf("\nNumero de imagens para benchmark [1-100]: ");
+    while (n < 10) {
+        printf("\nNumero total de imagens [multiplo de 10, min 10]: ");
         fflush(stdout);
         if (scanf("%d", &n) != 1) {
             int c;
             while ((c = getchar()) != '\n' && c != EOF);
             n = -1;
         }
-        if (n < 1)
-            printf("Numero invalido. Tente novamente.\n");
-        if (n > 100) n = 100;
+        if (n < 10)
+            printf("Numero invalido. Minimo 10.\n");
+        /* Arredonda para multiplo de 10 */
+        n = (n / 10) * 10;
     }
     return n;
+}
+
+static int menu_benchmark_offset(void)
+{
+    int offset = -1;
+    while (offset < 0) {
+        printf("Offset (indice inicial por digito) [0, 100, 200, ...]: ");
+        fflush(stdout);
+        if (scanf("%d", &offset) != 1) {
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            offset = -1;
+        }
+        if (offset < 0)
+            printf("Offset invalido. Use 0 ou maior.\n");
+    }
+    return offset;
+}
+
+static void menu_benchmark_dir(char *buf, int bufsz)
+{
+    int c;
+    printf("Diretorio dos PNGs\n");
+    printf("  1. mnist_png/test (padrao)\n");
+    printf("  2. Outro caminho\n");
+    printf("Escolha [1-2]: ");
+    fflush(stdout);
+
+    int op = 1;
+    if (scanf("%d", &op) != 1) op = 1;
+    /* limpa buffer */
+    while ((c = getchar()) != '\n' && c != EOF);
+
+    if (op == 2) {
+        printf("Digite o caminho: ");
+        fflush(stdout);
+        if (fgets(buf, bufsz, stdin)) {
+            /* remove newline */
+            int len = strlen(buf);
+            if (len > 0 && buf[len-1] == '\n') buf[len-1] = '\0';
+        }
+    } else {
+        snprintf(buf, bufsz, "%s",
+                 "../../Marco2-driver/mif_files/mnist_png/test");
+    }
 }
 
 /*  Modo interativo  */
 static int modo_interativo(app_config_t *cfg)
 {
     static char img_path_buf[256];
+    static char png_dir_buf[512];
+    static char log_buf[256];
 
     int escolha = menu_modo();
 
@@ -218,8 +266,14 @@ static int modo_interativo(app_config_t *cfg)
 
     case 3:
         cfg->modo = MODO_BENCHMARK;
-        cfg->mif_dir   = DEFAULT_IMG_DIR;
+        menu_benchmark_dir(png_dir_buf, sizeof(png_dir_buf));
+        cfg->mif_dir   = png_dir_buf;
         cfg->n_imagens = menu_benchmark_n();
+        cfg->offset    = menu_benchmark_offset();
+        snprintf(log_buf, sizeof(log_buf), "benchmark_%d.csv", cfg->offset);
+        cfg->log_path  = log_buf;
+        printf("\nBenchmark: dir=%s n=%d offset=%d log=%s\n",
+               cfg->mif_dir, cfg->n_imagens, cfg->offset, cfg->log_path);
         break;
     }
 
