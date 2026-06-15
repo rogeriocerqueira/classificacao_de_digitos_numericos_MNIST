@@ -23,7 +23,6 @@ int modo_arquivo(elm_t *elm, vga_t *vga, const app_config_t *cfg)
     printf("  Modo 1 - Inferencia por Arquivo\n");
     printf("==========================================\n\n");
 
-    /* 1. Carrega imagem do .mif */
     uint8_t *img  = NULL;
     size_t   img_sz = 0;
 
@@ -41,15 +40,9 @@ int modo_arquivo(elm_t *elm, vga_t *vga, const app_config_t *cfg)
     }
     printf("Imagem carregada: %s (%zu pixels)\n", cfg->img_path, img_sz);
 
-    /* 2. Exibe no VGA */
     printf("Exibindo no VGA...\n");
     vga_draw_image(vga, img);
 
-    /* Reseta FSM/acumuladores do CoProcessor antes de classificar
-     * (nao afeta os BRAMs de pesos, ja carregados em elm_init_weights) */
-    elm_reset(elm);
-
-    /* 3. Envia ao CoProcessor */
     printf("Enviando ao CoProcessor...\n");
     uint8_t pred = 0;
     rc = elm_classify(elm, img, &pred);
@@ -59,7 +52,6 @@ int modo_arquivo(elm_t *elm, vga_t *vga, const app_config_t *cfg)
         return APP_ERR;
     }
 
-    /* 4. Imprime resultado */
     printf("\n-------------------------------\n");
     printf("  Predicao:  %d\n", pred);
     if (cfg->classe_esp >= 0) {

@@ -1,5 +1,5 @@
 /*
- * main.c — ponto de entrada do Marco 3.
+ * main.c - ponto de entrada do Marco 3.
  *
  * Uso com argumentos:
  *   sudo ./app --modo arquivo  --img ./image_files/imagem_7.mif [-e 7]
@@ -8,7 +8,7 @@
  *
  * Uso interativo (sem argumentos):
  *   sudo ./app
- *   → abre menu para escolher modo e dígito
+ *   -> abre menu para escolher modo e digito
  */
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
@@ -17,59 +17,159 @@
 #include <getopt.h>
 #include "app.h"
 #include "vga.h"
-#include "elm.h"        
-#include "elm_mif.h"   
+#include "elm.h"
+#include "elm_mif.h"
 
-/* ── Protótipos dos modos ──────────────────────────────── */
+/*  Prottipos dos modos  */
 int modo_arquivo   (elm_t *, vga_t *, const app_config_t *);
 int modo_desenho   (elm_t *, vga_t *, const app_config_t *);
 int modo_benchmark (elm_t *, vga_t *, const app_config_t *);
 
-/* ── Diretório padrão das imagens ──────────────────────── */
+/*  Diretrio padro das imagens e pesos  */
 #define DEFAULT_IMG_DIR  "../../Marco2-driver/image_files"
+#define MIF_DIR          "../../Marco2-driver/mif_files"
+#define MIF_WIN          MIF_DIR "/mem_win.mif"
+#define MIF_BIAS         MIF_DIR "/mem_bias.mif"
+#define MIF_BETA         MIF_DIR "/mem_beta.mif"
 
-/* ── Ajuda ─────────────────────────────────────────────── */
+/*  Carrega pesos/bias/beta do ELM a partir dos .mif  */
+static int elm_init_weights(elm_t *elm)
+{
+    int16_t *W    = NULL;
+    int16_t *bias = NULL;
+    int16_t *beta = NULL;
+    size_t   sz_W, sz_bias, sz_beta;
+    int rc;
+
+    printf("[ELM] Carregando pesos...\n");
+
+    /*  W_in: ELM_HIDDEN_NEURONS x ELM_IMAGE_PIXELS  */
+    rc = elm_mif_load_q4_12(MIF_WIN, &W, &sz_W);
+    if (rc != ELM_MIF_OK) {
+        fprintf(stderr, "Erro: nao foi possivel ler %s (rc=%d)\n", MIF_WIN, rc);
+        return APP_ERR;
+    }
+    if (sz_W != (size_t)ELM_HIDDEN_NEURONS * ELM_IMAGE_PIXELS) {
+        fprintf(stderr, "Erro: %s tem %zu valores, esperado %d\n",
+                MIF_WIN, sz_W, ELM_HIDDEN_NEURONS * ELM_IMAGE_PIXELS);
+        free(W);
+        return APP_ERR;
+    }
+
+    /*  bias: ELM_HIDDEN_NEURONS  */
+    rc = elm_mif_load_q4_12(MIF_BIAS, &bias, &sz_bias);
+    if (rc != ELM_MIF_OK) {
+        fprintf(stderr, "Erro: nao foi possivel ler %s (rc=%d)\n", MIF_BIAS, rc);
+        free(W);
+        return APP_ERR;
+    }
+    if (sz_bias != (size_t)ELM_HIDDEN_NEURONS) {
+        fprintf(stderr, "Erro: %s tem %zu valores, esperado %d\n",
+                MIF_BIAS, sz_bias, ELM_HIDDEN_NEURONS);
+        free(W); free(bias);
+        return APP_ERR;
+    }
+
+    /*  beta: ELM_OUTPUT_NEURONS x ELM_HIDDEN_NEURONS  */
+    rc = elm_mif_load_q4_12(MIF_BETA, &beta, &sz_beta);
+    if (rc != ELM_MIF_OK) {
+        fprintf(stderr, "Erro: nao foi possivel ler %s (rc=%d)\n", MIF_BETA, rc);
+        free(W); free(bias);
+        return APP_ERR;
+    }
+    if (sz_beta != (size_t)ELM_OUTPUT_NEURONS * ELM_HIDDEN_NEURONS) {
+        fprintf(stderr, "Erro: %s tem %zu valores, esperado %d\n",
+                MIF_BETA, sz_beta, ELM_OUTPUT_NEURONS * ELM_HIDDEN_NEURONS);
+        free(W); free(bias); free(beta);
+        return APP_ERR;
+    }
+
+    /*  Envia ao CoProcessor  */
+    rc = elm_load_weights(elm, (const int16_t (*)[ELM_IMAGE_PIXELS])W);
+    if (rc != ELM_OK) {
+        fprintf(stderr, "Erro: elm_load_weights falhou (rc=%d)\n", rc);
+        free(W); free(bias); free(beta);
+        return APP_ERR;
+    }
+
+    rc = elm_load_biases(elm, bias);
+    if (rc != ELM_OK) {
+        fprintf(stderr, "Erro: elm_load_biases falhou (rc=%d)\n", rc);
+        free(W); free(bias); free(beta);
+        return APP_ERR;
+    }
+
+    /*
+     * mem_beta.mif esta em layout hidden-row-major: addr = h*10 + o
+     * (ver comentario em elm.c / second_layer.v).
+     * elm_load_betas espera beta[o][h] (formato matematico y = beta . h)
+     * e ele mesmo transpoe para hidden-major na escrita do BRAM.
+     * Por isso fazemos a transposicao inversa antes de chamar:
+     *   beta_oh[o][h] = flat_beta[h*10 + o]
+     */
+    {
+        static int16_t beta_oh[ELM_OUTPUT_NEURONS][ELM_HIDDEN_NEURONS];
+        int h, o;
+        for (h = 0; h < ELM_HIDDEN_NEURONS; h++) {
+            for (o = 0; o < ELM_OUTPUT_NEURONS; o++) {
+                beta_oh[o][h] = beta[h * ELM_OUTPUT_NEURONS + o];
+            }
+        }
+        rc = elm_load_betas(elm, beta_oh);
+    }
+    if (rc != ELM_OK) {
+        fprintf(stderr, "Erro: elm_load_betas falhou (rc=%d)\n", rc);
+        free(W); free(bias); free(beta);
+        return APP_ERR;
+    }
+
+    free(W); free(bias); free(beta);
+    printf("[ELM] Pesos carregados com sucesso (W=%zu, bias=%zu, beta=%zu).\n\n",
+           sz_W, sz_bias, sz_beta);
+    return APP_OK;
+}
+
+/*  Ajuda  */
 static void usage(const char *prog)
 {
     fprintf(stderr,
         "Uso:\n"
-        "  %s                            → menu interativo\n"
+        "  %s                            -> menu interativo\n"
         "  %s --modo arquivo --img <path.mif> [-e <digito>]\n"
         "  %s --modo desenho\n"
         "  %s --modo benchmark --dir <dir> [--n <N>] [--log <log.csv>]\n"
         "\n"
-        "Opções:\n"
+        "Opcoes:\n"
         "  --modo  arquivo|desenho|benchmark\n"
         "  --img   caminho para arquivo .mif\n"
-        "  --dir   diretório com imagem_0.mif .. imagem_9.mif\n"
-        "  --n     número de inferências no benchmark (padrão: 100)\n"
+        "  --dir   diretorio com imagem_0.mif .. imagem_9.mif\n"
+        "  --n     numero de inferencias no benchmark (padrao: 100)\n"
         "  --e     classe esperada (modo arquivo)\n"
-        "  --log   caminho do CSV de saída (padrão: benchmark.csv)\n",
+        "  --log   caminho do CSV de saida (padrao: benchmark.csv)\n",
         prog, prog, prog, prog);
 }
 
-/* ── Menu interativo ───────────────────────────────────── */
+/*  Menu interativo  */
 static int menu_modo(void)
 {
     int escolha = -1;
     while (escolha < 1 || escolha > 3) {
-        printf("╔══════════════════════════════════════════╗\n");
-        printf("║  Selecione o modo de operação:           ║\n");
-        printf("╠══════════════════════════════════════════╣\n");
-        printf("║  1. Arquivo   (exibe imagem do dígito)  ║\n");
-        printf("║  2. Desenho   (desenha com mouse)       ║\n");
-        printf("║  3. Benchmark (testa N imagens)         ║\n");
-        printf("╚══════════════════════════════════════════╝\n");
+        printf("==============================================\n");
+        printf("  Selecione o modo de operacao:\n");
+        printf("==============================================\n");
+        printf("  1. Arquivo   (exibe imagem do digito)\n");
+        printf("  2. Desenho   (desenha com mouse)\n");
+        printf("  3. Benchmark (testa N imagens)\n");
+        printf("==============================================\n");
         printf("Escolha [1-3]: ");
         fflush(stdout);
         if (scanf("%d", &escolha) != 1) {
-            /* limpa buffer em caso de entrada inválida */
             int c;
             while ((c = getchar()) != '\n' && c != EOF);
             escolha = -1;
         }
         if (escolha < 1 || escolha > 3)
-            printf("Opção inválida. Tente novamente.\n\n");
+            printf("Opcao invalida. Tente novamente.\n\n");
     }
     return escolha;
 }
@@ -78,7 +178,7 @@ static int menu_digito(void)
 {
     int digito = -1;
     while (digito < 0 || digito > 9) {
-        printf("\nSelecione o dígito [0-9]: ");
+        printf("\nSelecione o digito [0-9]: ");
         fflush(stdout);
         if (scanf("%d", &digito) != 1) {
             int c;
@@ -86,7 +186,7 @@ static int menu_digito(void)
             digito = -1;
         }
         if (digito < 0 || digito > 9)
-            printf("Dígito inválido. Tente novamente.\n");
+            printf("Digito invalido. Tente novamente.\n");
     }
     return digito;
 }
@@ -95,7 +195,7 @@ static int menu_benchmark_n(void)
 {
     int n = -1;
     while (n < 1) {
-        printf("\nNúmero de imagens para benchmark [1-100]: ");
+        printf("\nNumero de imagens para benchmark [1-100]: ");
         fflush(stdout);
         if (scanf("%d", &n) != 1) {
             int c;
@@ -103,13 +203,13 @@ static int menu_benchmark_n(void)
             n = -1;
         }
         if (n < 1)
-            printf("Número inválido. Tente novamente.\n");
+            printf("Numero invalido. Tente novamente.\n");
         if (n > 100) n = 100;
     }
     return n;
 }
 
-/* ── Modo interativo ───────────────────────────────────── */
+/*  Modo interativo  */
 static int modo_interativo(app_config_t *cfg)
 {
     static char img_path_buf[256];
@@ -143,7 +243,7 @@ static int modo_interativo(app_config_t *cfg)
     return APP_OK;
 }
 
-/* ── Parse de argumentos ───────────────────────────────── */
+/*  Parse de argumentos  */
 static int parse_args(int argc, char **argv, app_config_t *cfg)
 {
     /* Defaults */
@@ -173,7 +273,7 @@ static int parse_args(int argc, char **argv, app_config_t *cfg)
             else if (strcmp(optarg, "desenho")   == 0) cfg->modo = MODO_DESENHO;
             else if (strcmp(optarg, "benchmark") == 0) cfg->modo = MODO_BENCHMARK;
             else {
-                fprintf(stderr, "Modo inválido: %s\n", optarg);
+                fprintf(stderr, "Modo invalido: %s\n", optarg);
                 return APP_ERR;
             }
             break;
@@ -187,28 +287,27 @@ static int parse_args(int argc, char **argv, app_config_t *cfg)
         }
     }
 
-    /* Validações */
+    /* Validaes */
     if (cfg->modo == MODO_ARQUIVO && !cfg->img_path) {
-        fprintf(stderr, "Erro: --img obrigatório no modo arquivo.\n");
+        fprintf(stderr, "Erro: --img obrigatorio no modo arquivo.\n");
         return APP_ERR;
     }
     if (cfg->n_imagens < 1) cfg->n_imagens = 1;
     return APP_OK;
 }
 
-/* ── main ──────────────────────────────────────────────── */
+/*  main  */
 int main(int argc, char **argv)
 {
-    printf("╔══════════════════════════════════════════╗\n");
-    printf("║  Marco 3 — Aplicação MNIST DE1-SoC      ║\n");
-    printf("║  Driver ELM + VGA                       ║\n");
-    printf("╚══════════════════════════════════════════╝\n\n");
+    printf("==============================================\n");
+    printf("  Marco 3 - Aplicacao MNIST DE1-SoC\n");
+    printf("  Driver ELM + VGA\n");
+    printf("==============================================\n\n");
 
     app_config_t cfg;
 
-    /* ── 1. Sem argumentos → menu interativo ─────────── */
+    /*  1. Sem argumentos -> menu interativo  */
     if (argc == 1) {
-        /* defaults antes do menu */
         cfg.modo       = MODO_ARQUIVO;
         cfg.img_path   = NULL;
         cfg.mif_dir    = DEFAULT_IMG_DIR;
@@ -218,7 +317,7 @@ int main(int argc, char **argv)
 
         if (modo_interativo(&cfg) != APP_OK) return 1;
     }
-    /* ── Com argumentos → parse normal ──────────────── */
+    /*  Com argumentos -> parse normal  */
     else {
         if (parse_args(argc, argv, &cfg) != APP_OK) {
             usage(argv[0]);
@@ -226,7 +325,7 @@ int main(int argc, char **argv)
         }
     }
 
-    /* ── 2. Inicializa driver Marco 2 (ELM) ─────────── */
+    /*  2. Inicializa driver Marco 2 (ELM)  */
     elm_t elm;
     printf("\n[ELM] Abrindo driver...\n");
     if (elm_open(&elm) != ELM_OK) {
@@ -235,7 +334,14 @@ int main(int argc, char **argv)
     }
     printf("[ELM] Driver aberto. status = 0x%08x\n\n", *elm.data_out);
 
-    /* ── 3. Inicializa driver VGA ───────────────────── */
+    /*  2b. Carrega pesos (W_in, bias, beta)  */
+    if (elm_init_weights(&elm) != APP_OK) {
+        fprintf(stderr, "Erro: falha ao carregar pesos do ELM.\n");
+        elm_close(&elm);
+        return 2;
+    }
+
+    /*  3. Inicializa driver VGA  */
     vga_t vga;
     printf("[VGA] Abrindo driver...\n");
     if (vga_open(&vga) != APP_OK) {
@@ -244,13 +350,13 @@ int main(int argc, char **argv)
         return 3;
     }
     vga_clear(&vga);
-    printf("[VGA] aberto. addr=0x%08X color=0x%08X ctrl=0x%08X\n",
-           VGA_BRIDGE_BASE + VGA_ADDR_OFF,
-           VGA_BRIDGE_BASE + VGA_COLOR_OFF,
-           VGA_BRIDGE_BASE + VGA_CTRL_OFF);
+    printf("[VGA] aberto. addr=0x%08lX color=0x%08lX ctrl=0x%08lX\n",
+           (unsigned long)(VGA_BRIDGE_BASE + VGA_ADDR_OFF),
+           (unsigned long)(VGA_BRIDGE_BASE + VGA_COLOR_OFF),
+           (unsigned long)(VGA_BRIDGE_BASE + VGA_CTRL_OFF));
     printf("[VGA] Pronto.\n\n");
 
-    /* ── 4. Loop principal ──────────────────────────── */
+    /*  4. Loop principal  */
     int rc = APP_OK;
     int continuar = 1;
 
@@ -267,19 +373,18 @@ int main(int argc, char **argv)
             break;
         }
 
-        /* ── Pergunta se quer continuar (modo interativo) ── */
+        /*  Pergunta se quer continuar (modo interativo)  */
         if (argc == 1) {
-            printf("\n┌─────────────────────────────────────┐\n");
-            printf("│  Deseja fazer outra inferência?     │\n");
-            printf("│  1. Sim — voltar ao menu            │\n");
-            printf("│  2. Não — encerrar                  │\n");
-            printf("└─────────────────────────────────────┘\n");
+            printf("\n-----------------------------------\n");
+            printf("  Deseja fazer outra inferencia?\n");
+            printf("  1. Sim - voltar ao menu\n");
+            printf("  2. Nao - encerrar\n");
+            printf("-----------------------------------\n");
             printf("Escolha [1-2]: ");
             fflush(stdout);
 
             int op = -1;
             if (scanf("%d", &op) == 1 && op == 1) {
-                /* Reseta config e volta ao menu */
                 cfg.img_path   = NULL;
                 cfg.classe_esp = -1;
                 vga_clear(&vga);
@@ -293,7 +398,7 @@ int main(int argc, char **argv)
         }
     }
 
-    /* ── 5. Fecha recursos ──────────────────────────── */
+    /*  5. Fecha recursos  */
     vga_clear(&vga);
     vga_close(&vga);
     elm_close(&elm);

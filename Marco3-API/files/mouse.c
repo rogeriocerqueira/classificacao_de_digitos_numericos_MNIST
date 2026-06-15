@@ -7,7 +7,9 @@
  *   value = delta de pixels
  *
  *   type  = EV_KEY → botão
- *   code  = BTN_LEFT ou BTN_RIGHT
+ *   code  = BTN_LEFT   → desenha
+ *   code  = BTN_RIGHT  → confirma
+ *   code  = BTN_MIDDLE → apaga
  *   value = 1 (press) ou 0 (release)
  */
 #define _POSIX_C_SOURCE 200809L
@@ -63,21 +65,18 @@ int mouse_poll(mouse_t *m)
 
     while (read(m->fd, &ev, sizeof(ev)) == sizeof(ev)) {
         if (ev.type == EV_REL) {
-            if (ev.code == REL_X) {
+            if (ev.code == REL_X)
                 cur_vga_x = clamp(cur_vga_x + ev.value, 0, VGA_SCREEN_W - 1);
-            }
-            else if (ev.code == REL_Y) {
+            else if (ev.code == REL_Y)
                 cur_vga_y = clamp(cur_vga_y + ev.value, 0, VGA_SCREEN_H - 1);
-            }
             /* Converte posição VGA → canvas 28×28 */
             mouse_canvas_xy(cur_vga_x, cur_vga_y,
                             &m->state.x, &m->state.y);
         }
         else if (ev.type == EV_KEY) {
-            if (ev.code == BTN_LEFT)
-                m->state.btn_left  = ev.value;
-            else if (ev.code == BTN_RIGHT)
-                m->state.btn_right = ev.value;
+            if      (ev.code == BTN_LEFT)   m->state.btn_left   = ev.value;
+            else if (ev.code == BTN_RIGHT)  m->state.btn_right  = ev.value;
+            else if (ev.code == BTN_MIDDLE) m->state.btn_middle = ev.value;
         }
         count++;
     }
@@ -90,7 +89,6 @@ void mouse_wait_click(mouse_t *m)
     struct input_event ev;
     int released = 1;
 
-    /* Lê de forma bloqueante temporariamente */
     int flags = fcntl(m->fd, F_GETFL, 0);
     fcntl(m->fd, F_SETFL, flags & ~O_NONBLOCK);
 
@@ -99,7 +97,6 @@ void mouse_wait_click(mouse_t *m)
 
         if (ev.type == EV_KEY && ev.code == BTN_LEFT) {
             if (ev.value == 1 && released) {
-                /* Clique registrado — atualiza posição */
                 mouse_canvas_xy(cur_vga_x, cur_vga_y,
                                 &m->state.x, &m->state.y);
                 m->state.btn_left = 1;
@@ -107,7 +104,6 @@ void mouse_wait_click(mouse_t *m)
             }
             released = (ev.value == 0);
         }
-        /* Atualiza posição mesmo enquanto espera */
         if (ev.type == EV_REL) {
             if (ev.code == REL_X)
                 cur_vga_x = clamp(cur_vga_x + ev.value, 0, VGA_SCREEN_W-1);
@@ -116,20 +112,12 @@ void mouse_wait_click(mouse_t *m)
         }
     }
 
-    /* Restaura não-bloqueante */
     fcntl(m->fd, F_SETFL, flags);
 }
 
 /* ── Conversão VGA → canvas ───────────────────────────── */
 void mouse_canvas_xy(int vga_x, int vga_y, int *cx, int *cy)
 {
-    /*
-     * A imagem 28×28 está centrada em 640×480:
-     * x: [VGA_IMG_OFF_X .. VGA_IMG_OFF_X+280) — escala 10x
-     * y: [VGA_IMG_OFF_Y .. VGA_IMG_OFF_Y+280) — escala 10x
-     *
-     * Fora da região → clamp para a borda do canvas.
-     */
     int px = (vga_x - VGA_IMG_OFF_X) / VGA_IMG_SCALE;
     int py = (vga_y - VGA_IMG_OFF_Y) / VGA_IMG_SCALE;
     *cx = clamp(px, 0, CANVAS_W - 1);

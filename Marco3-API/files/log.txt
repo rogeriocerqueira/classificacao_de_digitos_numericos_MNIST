@@ -1,0 +1,34 @@
+==============================================
+  Marco 3 - Aplicacao MNIST DE1-SoC
+  Driver ELM + VGA
+==============================================
+
+
+[ELM] Abrindo driver...
+[ELM] Driver aberto. status = 0x00000000
+
+[ELM] Carregando pesos...
+[ELM] Pesos carregados com sucesso (W=100352, bias=128, beta=1280).
+
+[VGA] Abrindo driver...
+[VGA] aberto. addr=0xFF200070 color=0xFF200080 ctrl=0xFF200090
+[VGA] aberto. addr=0xFF200070 color=0xFF200080 ctrl=0xFF200090
+[VGA] Pronto.
+
+
+==========================================
+  Modo 1 - Inferencia por Arquivo
+==========================================
+
+Imagem carregada: ../../Marco2-driver/image_files/imagem_7.mif (784 pixels)
+Exibindo no VGA...
+Enviando ao CoProcessor...
+
+-------------------------------
+  Predicao:  5
+  Esperado:  7
+  INCORRETO
+-------------------------------
+
+
+[App] Encerrado com sucesso.
