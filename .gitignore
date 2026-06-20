@@ -151,3 +151,12 @@ desktop.ini
 # ─────────────────────────────────────────
 **/mnist_png/
 docs/images/
+
+# ─────────────────────────────────────────
+#  Exceções
+# ─────────────────────────────────────────
+!Marco2-driver/image_files/mnist_png/test/leia-me.txt
+# Excecoes
+!Marco2-driver/image_files/mnist_png/
+!Marco2-driver/image_files/mnist_png/test/
+!Marco2-driver/image_files/mnist_png/test/leia-me.txt
