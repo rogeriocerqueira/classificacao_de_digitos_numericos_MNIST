@@ -24,21 +24,10 @@ Construir a camada de software que integra o co-processador ELM (Marco 1) e o dr
 
 ---
 
-## Arquitetura
+## Fluxo da Arquitetura Completa
 
-```
-Usuário (terminal / mouse / VGA)
-         │
-         ▼
-      main.c  ──  elm_init_weights()  ──►  libelm.a (Marco 2)
-         │                                       │
-         ├── modo_arquivo.c                      ▼
-         ├── modo_desenho.c            Co-processador ELM (FPGA)
-         └── modo_benchmark.c          via Lightweight HPS-to-FPGA Bridge
-                   │
-              vga.c / mouse.c
-         (acesso direto a /dev/mem — PIOs MMIO)
-```
+![Arquitetura Marco 3](docs/gitimages/marco3/arquitetura_marco3.gif)
+
 
 Os 7 PIOs criados no Platform Designer conectam o HPS à FPGA:
 
