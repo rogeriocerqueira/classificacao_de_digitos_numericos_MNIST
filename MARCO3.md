@@ -265,6 +265,37 @@ offset=100 → imagens [100 .. 100+N-1]
   <em>Resultado final: 86 acertos em 100 imagens — acurácia 86%, latência média 18.503 ms, throughput 54.0 img/s</em>
 </p>
 
+### Log de Saída
+
+O benchmark gera automaticamente um arquivo `.log` com nome `benchmark_d<digito>_off<offset>.log`. O arquivo contém duas partes:
+
+**CSV por inferência** — uma linha por imagem processada:
+
+```
+indice,arquivo,esperado,predito,correto,latencia_ms
+0,test/7/0001.png,7,7,1,18.5200
+1,test/7/0002.png,7,7,1,18.4900
+2,test/7/0003.png,7,4,0,18.5100
+...
+```
+
+**Resumo final** — métricas agregadas ao final do arquivo:
+
+```
+# === Resumo ===
+# digito: 7
+# imagens_processadas: 100
+# acertos: 86
+# acuracia_pct: 86.00
+# latencia_media_ms: 18.503
+# desvio_padrao_ms: 0.018
+# latencia_min_ms: 18.471
+# latencia_max_ms: 18.561
+# throughput_img_s: 54.0
+```
+
+> ⚠️ **Observação — Escopo atual do log:** o arquivo de log salva exclusivamente os resultados das inferências do modo benchmark. Para que o log cumpra plenamente sua função de rastreabilidade do sistema, ele deve ser expandido para registrar eventos de todos os modos, incluindo: timestamp (data e hora) de cada operação, eventos de mouse (cliques, movimentos e confirmações no modo desenho), arquivos `.mif` e PNG enviados ao co-processador, modo selecionado pelo usuário, inicialização dos drivers ELM e VGA, e erros em tempo de execução. Esta expansão é necessária para auditoria completa do comportamento do sistema embarcado.
+
 ---
 
 ## Compilação e Execução
