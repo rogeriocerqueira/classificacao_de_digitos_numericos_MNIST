@@ -43,9 +43,9 @@ Os 7 PIOs criados no Platform Designer conectam o HPS à FPGA:
 
 ---
 
-## Comunicação com o Marco 2 — `libelm.a`
+## Comunicação com o Marco 2 : `libelm.a`
 
-Todo acesso ao co-processador ELM passa pela `libelm.a`, a biblioteca estática compilada no Marco 2. O Marco 3 nunca acessa os PIOs diretamente — ele chama as funções da API do driver, que internamente executam as operações MMIO via `elm_exec.S` (Assembly ARMv7).
+Todo acesso ao co-processador ELM passa pela `libelm.a`, a biblioteca estática compilada no Marco 2. O Marco 3 nunca acessa os PIOs diretamente : ele chama as funções da API do driver, que internamente executam as operações MMIO via `elm_exec.S` (Assembly ARMv7).
 
 ### Funções da API usadas pelo Marco 3
 
@@ -53,20 +53,20 @@ Todo acesso ao co-processador ELM passa pela `libelm.a`, a biblioteca estática 
 |--------|-------------------|-----------|
 | `elm_open(elm)` | `elm.c` | Abre `/dev/mem`, faz `mmap` da bridge, inicializa ponteiros para os PIOs |
 | `elm_close(elm)` | `elm.c` | Desfaz o `mmap` e fecha o descritor |
-| `elm_reset(elm)` | `elm.c` | Pulsa `ELM_SIG_RESET` + `ELM_SIG_CLR_OP` no PIO `ctrl` — zera FSM e acumuladores |
+| `elm_reset(elm)` | `elm.c` | Pulsa `ELM_SIG_RESET` + `ELM_SIG_CLR_OP` no PIO `ctrl` : zera FSM e acumuladores |
 | `elm_load_weights(elm, W)` | `elm.c` | Envia 100.352 valores Q4.12 ao co-processador via 100.352 chamadas a `elm_exec.S` |
 | `elm_load_biases(elm, b)` | `elm.c` | Envia 128 valores de bias |
 | `elm_load_betas(elm, beta)` | `elm.c` | Envia 1.280 valores beta (transpõe output-major → hidden-major internamente) |
 | `elm_classify(elm, img, pred)` | `elm.c` | Chama `elm_load_image()` (784 STORE_IMG) + `elm_start()` (START) e lê `data_out[3:0]` |
 
-### Handshake MMIO — `elm_exec.S`
+### Handshake MMIO : `elm_exec.S`
 
 Cada chamada a `elm_exec.S` executa **uma instrução** no co-processador seguindo o protocolo:
 
 ```
 1. Espera BUSY=0  →  data_out[5] == 0
 2. Limpa erro     →  se data_out[6]=ERROR, pulsa CLR_OP no ctrl
-3. Escreve data_in  +  DSB sy  (barreira de memória — garante ordem na bridge)
+3. Escreve data_in  +  DSB sy  (barreira de memória : garante ordem na bridge)
 4. Sobe ENABLE    →  ctrl[0] = 1
 5. Polling DONE   →  data_out[4] == 1  ou  ERROR
 6. Abaixa ENABLE  →  ctrl = 0
@@ -75,20 +75,20 @@ Cada chamada a `elm_exec.S` executa **uma instrução** no co-processador seguin
 
 O `DSB sy` na etapa 3 é crítico: sem ele, a Lightweight Bridge pode reordenar as escritas e a FPGA recebe `ENABLE` antes da instrução em `data_in`.
 
-### `elm_reset()` — Por que é obrigatório antes de cada inferência
+### `elm_reset()` : Por que é obrigatório antes de cada inferência
 
 O co-processador ELM possui acumuladores internos na FSM que somam produtos parciais durante o cálculo da camada oculta. Se uma inferência anterior não foi concluída corretamente, ou se a FSM ficou em estado intermediário, esses acumuladores retêm resíduos. O `elm_reset()` zera esses registradores sem apagar os BRAMs de pesos (`altsyncram`), permitindo uma nova inferência limpa.
 
 ---
 
-## Inicialização — `main.c`
+## Inicialização : `main.c`
 
 Ao iniciar, o `main.c` executa a seguinte sequência antes de abrir qualquer modo:
 
-1. `elm_open()` — abre `/dev/mem` e mapeia os PIOs via `mmap`
-2. `elm_init_weights()` — carrega os três arquivos de pesos nos BRAMs da FPGA
-3. `vga_open()` — mapeia os PIOs VGA
-4. Menu interativo — usuário escolhe o modo
+1. `elm_open()` : abre `/dev/mem` e mapeia os PIOs via `mmap`
+2. `elm_init_weights()` : carrega os três arquivos de pesos nos BRAMs da FPGA
+3. `vga_open()` : mapeia os PIOs VGA
+4. Menu interativo : usuário escolhe o modo
 
 Os pesos são carregados **uma única vez** e permanecem nos BRAMs entre inferências:
 
@@ -106,7 +106,7 @@ Os pesos são carregados **uma única vez** e permanecem nos BRAMs entre inferê
 
 ---
 
-## Modo 1 — Arquivo (`modo_arquivo.c`)
+## Modo 1 : Arquivo (`modo_arquivo.c`)
 
 Lê uma imagem `.mif` do dataset MNIST, exibe no VGA e classifica.
 
@@ -119,25 +119,25 @@ sudo ./app --modo arquivo --img ../../Marco2-driver/image_files/imagem_7.mif -e 
 ```
 main.c
   └─► modo_arquivo(elm, vga, cfg)
-        ├─► elm_mif_load_image()        — lê .mif → uint8_t[784]
-        ├─► vga_draw_image()            — exibe no monitor VGA pixel a pixel
-        │     └─► vga_set_pixel() ×784  — escreve addr+cor nos PIOs, polling DONE
-        ├─► elm_reset()          [Marco 2] — zera FSM e acumuladores (PIO ctrl)
-        └─► elm_classify()       [Marco 2] — envia imagem e obtém predição
-              ├─► elm_load_image()      — 784 instruções STORE_IMG via elm_exec.S
-              └─► elm_start()           — instrução START → co-processador executa ELM
-                    └─► data_out[3:0]   — dígito predito retornado pela FPGA (Marco 1)
+        ├─► elm_mif_load_image()        : lê .mif → uint8_t[784]
+        ├─► vga_draw_image()            : exibe no monitor VGA pixel a pixel
+        │     └─► vga_set_pixel() ×784  : escreve addr+cor nos PIOs, polling DONE
+        ├─► elm_reset()          [Marco 2] : zera FSM e acumuladores (PIO ctrl)
+        └─► elm_classify()       [Marco 2] : envia imagem e obtém predição
+              ├─► elm_load_image()      : 784 instruções STORE_IMG via elm_exec.S
+              └─► elm_start()           : instrução START → co-processador executa ELM
+                    └─► data_out[3:0]   : dígito predito retornado pela FPGA (Marco 1)
 ```
 
 <p align="center">
-  <img src="docs/gitimages/marco3/modo_arquivo.png" alt="Modo arquivo — resultado correto" width="700"/>
+  <img src="docs/gitimages/marco3/modo_arquivo.png" alt="Modo arquivo : resultado correto" width="700"/>
   <br/>
-  <em>Modo 1: dígito 7 classificado corretamente — Predição: 7 / Esperado: 7 / CORRETO</em>
+  <em>Modo 1: dígito 7 classificado corretamente : Predição: 7 / Esperado: 7 / CORRETO</em>
 </p>
 
 ---
 
-## Modo 2 — Desenho com Mouse (`modo_desenho.c`)
+## Modo 2 : Desenho com Mouse (`modo_desenho.c`)
 
 O usuário desenha no canvas 28×28 exibido em escala 10× no monitor (280×280 px centralizado em 640×480). Um cursor em cruz vermelha indica a posição atual sobre o fundo preto.
 
@@ -158,27 +158,27 @@ sudo ./app --modo desenho
 ```
 main.c
   └─► modo_desenho(elm, vga, cfg)
-        ├─► mouse_open()               — abre /dev/input/event0 (O_NONBLOCK)
-        ├─► vga_clear()                — apaga canvas no VGA
+        ├─► mouse_open()               : abre /dev/input/event0 (O_NONBLOCK)
+        ├─► vga_clear()                : apaga canvas no VGA
         └─► loop de captura
-              ├─► mouse_poll()         — lê EV_REL (movimento) e EV_KEY (botões)
-              ├─► mouse_canvas_xy()    — converte posição VGA → canvas 28×28
+              ├─► mouse_poll()         : lê EV_REL (movimento) e EV_KEY (botões)
+              ├─► mouse_canvas_xy()    : converte posição VGA → canvas 28×28
               │     cx = (vga_x - 180) / 10
               │     cy = (vga_y - 100) / 10
-              ├─► paint_pixel()        — BTN_LEFT: canvas[idx]=255, VGA_WHITE
-              ├─► erase_pixel()        — BTN_MIDDLE: canvas[idx]=0, VGA_BLACK
-              ├─► cursor_draw()        — VGA_RED nos 5 pixels da cruz
+              ├─► paint_pixel()        : BTN_LEFT: canvas[idx]=255, VGA_WHITE
+              ├─► erase_pixel()        : BTN_MIDDLE: canvas[idx]=0, VGA_BLACK
+              ├─► cursor_draw()        : VGA_RED nos 5 pixels da cruz
               └─► BTN_RIGHT: confirma
-                    ├─► elm_reset()    [Marco 2] — zera FSM do co-processador
-                    └─► elm_classify() [Marco 2] — envia canvas[784] ao co-processador
+                    ├─► elm_reset()    [Marco 2] : zera FSM do co-processador
+                    └─► elm_classify() [Marco 2] : envia canvas[784] ao co-processador
 ```
 
-A escala 10× existe **apenas para exibição** no `ghrd_top.v` — o co-processador sempre recebe o array 28×28 original sem transformação.
+A escala 10× existe **apenas para exibição** no `ghrd_top.v` : o co-processador sempre recebe o array 28×28 original sem transformação.
 
 <p align="center">
-  <img src="docs/gitimages/marco3/modo_desenho.png" alt="Modo desenho — terminal" width="700"/>
+  <img src="docs/gitimages/marco3/modo_desenho.png" alt="Modo desenho : terminal" width="700"/>
   <br/>
-  <em>Modo 2: dois desenhos consecutivos — dígitos 3 e 7 classificados corretamente</em>
+  <em>Modo 2: dois desenhos consecutivos : dígitos 3 e 7 classificados corretamente</em>
 </p>
 
 ### Dígitos Desenhados no Canvas VGA (0–9)
@@ -197,7 +197,7 @@ Cada imagem mostra o canvas 28×28 em escala 10× no monitor VGA. Traço branco,
 
 ---
 
-## Modo 3 — Benchmark (`modo_benchmark.c`)
+## Modo 3 : Benchmark (`modo_benchmark.c`)
 
 Lê imagens PNG diretamente via `stb_image`, sem pré-conversão. Testa um dígito por execução com offset configurável para garantir conjuntos sem repetição entre execuções.
 
@@ -212,13 +212,13 @@ sudo ./app --modo benchmark \
 ```
 main.c
   └─► modo_benchmark(elm, vga, cfg)
-        ├─► listar_pngs()              — opendir/readdir + qsort (ordem alfabética)
+        ├─► listar_pngs()              : opendir/readdir + qsort (ordem alfabética)
         └─► para cada imagem [offset .. offset+N]:
-              ├─► carregar_png()       — stb_image: PNG → uint8_t[784] grayscale
-              ├─► vga_draw_image()     — exibe no monitor durante a inferência
-              ├─► elm_reset()  [Marco 2] — zera FSM antes de cada inferência
+              ├─► carregar_png()       : stb_image: PNG → uint8_t[784] grayscale
+              ├─► vga_draw_image()     : exibe no monitor durante a inferência
+              ├─► elm_reset()  [Marco 2] : zera FSM antes de cada inferência
               ├─► clock_gettime(CLOCK_MONOTONIC, &t0)
-              ├─► elm_classify()[Marco 2] — inferência no co-processador (Marco 1)
+              ├─► elm_classify()[Marco 2] : inferência no co-processador (Marco 1)
               ├─► clock_gettime(CLOCK_MONOTONIC, &t1)
               └─► grava CSV: índice, arquivo, esperado, predito, correto, latência
 ```
@@ -243,22 +243,22 @@ offset=100 → imagens [100 .. 100+N-1]
 > A latência mede exclusivamente `elm_classify()`, excluindo exibição VGA e I/O de arquivo.
 
 <p align="center">
-  <img src="docs/gitimages/marco3/modo_benchmark.png" alt="Benchmark — execução linha a linha" width="700"/>
+  <img src="docs/gitimages/marco3/modo_benchmark.png" alt="Benchmark : execução linha a linha" width="700"/>
   <br/>
-  <em>Modo 3: execução do benchmark para o dígito 7 — 100 imagens, índices [0..99]</em>
+  <em>Modo 3: execução do benchmark para o dígito 7 : 100 imagens, índices [0..99]</em>
 </p>
 
 <p align="center">
-  <img src="docs/gitimages/marco3/acuracia_benchmark_resultados.png" alt="Benchmark — resultado final" width="700"/>
+  <img src="docs/gitimages/marco3/acuracia_benchmark_resultados.png" alt="Benchmark : resultado final" width="700"/>
   <br/>
-  <em>Resultado final: 86 acertos em 100 imagens — acurácia 86%, latência média 18.503 ms, throughput 54.0 img/s</em>
+  <em>Resultado final: 86 acertos em 100 imagens : acurácia 86%, latência média 18.503 ms, throughput 54.0 img/s</em>
 </p>
 
 ### Log de Saída
 
 O benchmark gera automaticamente um arquivo `.log` com nome `benchmark_d<digito>_off<offset>.log`. O arquivo contém duas partes:
 
-**CSV por inferência** — uma linha por imagem processada:
+**CSV por inferência** : uma linha por imagem processada:
 
 ```
 indice,arquivo,esperado,predito,correto,latencia_ms
@@ -268,7 +268,7 @@ indice,arquivo,esperado,predito,correto,latencia_ms
 ...
 ```
 
-**Resumo final** — métricas agregadas ao final do arquivo:
+**Resumo final** : métricas agregadas ao final do arquivo:
 
 ```
 # === Resumo ===
@@ -283,7 +283,7 @@ indice,arquivo,esperado,predito,correto,latencia_ms
 # throughput_img_s: 54.0
 ```
 
-> ⚠️ **Observação — Escopo atual do log:** o arquivo de log salva exclusivamente os resultados das inferências do modo benchmark. Para que o log cumpra plenamente sua função de rastreabilidade do sistema, ele deve ser expandido para registrar eventos de todos os modos, incluindo: timestamp (data e hora) de cada operação, eventos de mouse (cliques, movimentos e confirmações no modo desenho), arquivos `.mif` e PNG enviados ao co-processador, modo selecionado pelo usuário, inicialização dos drivers ELM e VGA, e erros em tempo de execução. Esta expansão é necessária para auditoria completa do comportamento do sistema embarcado.
+> ⚠️ **Observação : Escopo atual do log:** o arquivo de log salva exclusivamente os resultados das inferências do modo benchmark. Para que o log cumpra plenamente sua função de rastreabilidade do sistema, ele deve ser expandido para registrar eventos de todos os modos, incluindo: timestamp (data e hora) de cada operação, eventos de mouse (cliques, movimentos e confirmações no modo desenho), arquivos `.mif` e PNG enviados ao co-processador, modo selecionado pelo usuário, inicialização dos drivers ELM e VGA, e erros em tempo de execução. Esta expansão é necessária para auditoria completa do comportamento do sistema embarcado.
 
 ---
 
@@ -306,7 +306,7 @@ chmod +x app
 sudo ./app
 ```
 
-> O FPGA perde a configuração ao desligar — o `.sof` deve ser regravado a cada sessão.
+> O FPGA perde a configuração ao desligar : o `.sof` deve ser regravado a cada sessão.
 
 ---
 
